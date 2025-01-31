@@ -392,3 +392,5 @@
 [2025-01-31T06:29:30.602738+00:00] request_logger.INFO: GET: /staffs took 34.69 ms [] []
 [2025-01-31T06:29:30.901005+00:00] request_logger.INFO: GET: /about took 17.5 ms [] []
 [2025-01-31T06:29:31.392797+00:00] request_logger.INFO: GET: / took 6.38 ms [] []
+[2025-01-31T06:30:45.595289+00:00] request_logger.INFO: GET: / took 9.47 ms [] []
+[2025-01-31T06:30:46.461240+00:00] request_logger.INFO: GET: /staffs took 40.16 ms [] []
