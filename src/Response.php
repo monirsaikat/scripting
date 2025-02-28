@@ -4,36 +4,37 @@ namespace Src;
 
 class Response
 {
-    // Send a success response with data
-    public static function success($data, $statusCode = 200)
+    private $statusCode = 200;
+    private $headers = [];
+    private $body;
+
+    public function setStatusCode($code)
     {
-        self::send($data, $statusCode);
+        $this->statusCode = $code;
+        return $this;
     }
 
-    // Send an error response with message
-    public static function error($message, $statusCode = 400)
+    public function setHeader($name, $value)
     {
-        self::send(['error' => $message], $statusCode);
+        $this->headers[$name] = $value;
+        return $this;
     }
 
-    // Send a paginated response
-    public static function paginated($data, $page, $limit, $total, $statusCode = 200)
+    public function setBody($body)
     {
-        $response = [
-            'page' => $page,
-            'limit' => $limit,
-            'total' => $total,
-            'totalPages' => ceil($total / $limit),
-            'data' => $data
-        ];
-        self::send($response, $statusCode);
+        $this->body = $body;
+        return $this;
     }
 
-    // Generic function to send the response
-    private static function send($data, $statusCode)
+    public function send()
     {
-        http_response_code($statusCode); // Set the HTTP status code
-        header('Content-Type: application/json'); // Set the response format
-        echo json_encode($data, JSON_PRETTY_PRINT); // Encode and send the response
+        // Set headers
+        http_response_code($this->statusCode);
+        foreach ($this->headers as $name => $value) {
+            header("$name: $value");
+        }
+
+        // Send body
+        echo $this->body;
     }
 }

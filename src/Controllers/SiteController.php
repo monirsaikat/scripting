@@ -2,8 +2,10 @@
 
 namespace Src\Controllers;
 
+use Pimple\Container;
 use Src\Attributes\Route;
 use Src\Database;
+use Src\Session;
 
 class SiteController extends Controller
 {
@@ -131,15 +133,25 @@ class SiteController extends Controller
     #[Route('POST', '/contact')]
     public function submitContact()
     {
-        $name    = $this->get('name');
-        $email   = $this->get('email');
-        $message = $this->get('message');
+        $name    = $this->post('name', 'required');
+        $email   = $this->post('email', 'required|email');
+        $message = $this->post('message', 'required|min:3');
+
+        $errors = $this->validation();
+
+        if ($errors) {
+            Session::flash('error', $this->renderErrors());
+            redirect('/contact');
+        }
 
         $contactId = $this->db()->insert('contacts', [
-            'name' => $name,
-            'email' => $email,
+            'name'    => $name,
+            'email'   => $email,
             'message' => $message
         ]);
+
+        Session::flash('success', 'Contact created');
+        Session::clearOldValues();
 
         redirect('/');
     }

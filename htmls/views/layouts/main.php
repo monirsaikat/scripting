@@ -13,6 +13,8 @@
 
 <body>
     <?= $this->insert('partials/navbar') ?>
+    
+    <?= $this->insert('partials/confirmationModal') ?>
 
 
     <div class="container mt-3">

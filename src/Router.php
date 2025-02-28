@@ -8,18 +8,24 @@ use ReflectionMethod;
 use Src\Attributes\Auth;
 use Src\Attributes\Guest;
 use Src\Attributes\Route;
+use Pimple\Container;
+use Src\Exceptions\AppException;
+use Src\Middleware\CsrfMiddleware;
 
 class Router
 {
     private $routes = [];
+    private $namedRoutes = [];
     private $baseUrl;
     private $middleware = [];
     private $routeGroups = [];
 
-    public function __construct()
+    private $container;
+
+    public function __construct(Container $container)
     {
-        $config = require __DIR__ . '/../config/app.php';
-        $this->baseUrl = $config['base_url'];
+        $this->container = $container;
+        $this->baseUrl = $this->container['config']['app']['base_url'];
     }
 
     public function registerControllersAutomatically()
@@ -32,7 +38,7 @@ class Router
             $fullClassName = $controllerNamespace . $className;
 
             if (class_exists($fullClassName)) {
-                $controllerInstance = new $fullClassName();
+                $controllerInstance = new $fullClassName($this->container);
                 $this->registerRoutesFromAttributes($controllerInstance);
             }
         }
@@ -45,19 +51,17 @@ class Router
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
             foreach ($method->getAttributes(Route::class) as $attribute) {
                 $routeInstance = $attribute->newInstance();
-                $this->add($routeInstance->method, $routeInstance->path, [$controller, $method->getName()]);
+                $this->add($routeInstance->method, $routeInstance->path, [$controller, $method->getName()], $routeInstance->name);
             }
         }
     }
 
     private function applyAuthAttribute($callback)
     {
-        $reflection = new ReflectionMethod($callback[0], $callback[1]); // Get the controller and method
+        $reflection = new ReflectionMethod($callback[0], $callback[1]);
 
         foreach ($reflection->getAttributes(Auth::class) as $attribute) {
             $auth = $attribute->newInstance();
-
-            // Call the redirect logic in the Auth attribute (for example)
             $auth->handle();
         }
     }
@@ -68,11 +72,9 @@ class Router
 
         foreach ($reflection->getAttributes(Guest::class) as $attribute) {
             $auth = $attribute->newInstance();
-
             $auth->handle();
         }
     }
-
     /**
      * Add a route.
      *
@@ -81,9 +83,12 @@ class Router
      * @param callable|array $callback
      * @param array $middleware
      */
-    public function add($method, $route, $callback, $middleware = [])
+    public function add($method, $route, $callback, $name = null, $middleware = [])
     {
-        // Apply group prefix if any
+        if (strtolower($method) == 'post') {
+            $middleware[] = [new CsrfMiddleware(), 'handle'];
+        }
+
         if (!empty($this->routeGroups)) {
             $lastGroup = end($this->routeGroups);
             $route = $lastGroup['prefix'] . $route;
@@ -96,6 +101,25 @@ class Router
             'callback' => $callback,
             'middleware' => $middleware,
         ];
+
+        if ($name) {
+            $this->namedRoutes[$name] = $route;
+        }
+    }
+
+    public function route(string $name, array $params = []): string
+    {
+        if (!isset($this->namedRoutes[$name])) {
+            throw new ErrorException("Route name '$name' not found.");
+        }
+
+        $route = $this->namedRoutes[$name];
+
+        foreach ($params as $key => $value) {
+            $route = str_replace('{' . $key . '}', $value, $route);
+        }
+
+        return $this->baseUrl . $route;
     }
 
     /**
@@ -155,9 +179,9 @@ class Router
         $matchedRoute = $this->match($method, $uri);
 
         if ($matchedRoute) {
-            $callback = $matchedRoute['callback'];
+            $callback   = $matchedRoute['callback'];
             $middleware = $matchedRoute['middleware'];
-            $params = $matchedRoute['params'];
+            $params     = $matchedRoute['params'];
 
             // Apply middleware
             $this->applyMiddleware($middleware);
@@ -175,8 +199,7 @@ class Router
                 throw new ErrorException("Invalid callback for route: $uri");
             }
         } else {
-            header("HTTP/1.0 404 Not Found");
-            echo "404 Not Found";
+            throw new AppException("Page Not Found", 404);
         }
     }
 

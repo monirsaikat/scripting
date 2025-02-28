@@ -15,6 +15,34 @@ class Session
     }
 
     /**
+     * Set the old form values into the session
+     *
+     * @param array $values
+     */
+    public static function setOldValues($values)
+    {
+        self::start();
+        $_SESSION['_old_values'] = $values;
+    }
+
+    /**
+     * Get the old values from the session
+     *
+     * @return array
+     */
+    public static function getOldValues()
+    {
+        self::start();
+        return $_SESSION['_old_values'] ?? [];
+    }
+
+    public static function clearOldValues()
+    {
+        self::start();
+        unset($_SESSION['_old_values']);
+    }
+
+    /**
      * Set a flash message
      *
      * @param string $key
@@ -35,13 +63,11 @@ class Session
     public static function getFlash($key)
     {
         self::start();
-
         if (isset($_SESSION['flash'][$key])) {
             $message = $_SESSION['flash'][$key];
-            unset($_SESSION['flash'][$key]); // Remove after accessing
+            unset($_SESSION['flash'][$key]);
             return $message;
         }
-
         return null;
     }
 }

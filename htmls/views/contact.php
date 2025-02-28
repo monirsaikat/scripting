@@ -4,14 +4,16 @@
     <h1>Contact</h1>
 
     <form method="POST">
+        <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+
         <div class="mb-3">
             <label for="name" class="form-label">Name</label>
-            <input type="text" name="name" class="form-control" id="name" placeholder="john doe" autofocus>
+            <input type="text" name="name" value="<?= old('name') ?>" class="form-control" id="name" placeholder="john doe" autofocus>
         </div>
 
         <div class="mb-3">
             <label for="email" class="form-label">Email</label>
-            <input type="email" name="email" class="form-control" id="email" placeholder="name@example.com">
+            <input type="email" name="email" value="<?= old('email') ?>"  class="form-control" id="email" placeholder="name@example.com">
         </div>
 
         <div class="mb-3">

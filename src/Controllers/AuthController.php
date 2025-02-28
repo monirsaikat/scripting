@@ -7,7 +7,6 @@ use Src\Attributes\Guest;
 use Src\Attributes\Route;
 use Src\Cache;
 use Src\Models\User;
-use Src\Session;
 
 class AuthController extends Controller
 {
@@ -22,7 +21,7 @@ class AuthController extends Controller
 
         session_unset();
         session_destroy();
-        Session::flash('success', 'You are logged out');
+        flash('success', 'You are logged out');
         redirect('/login');
     }
 
@@ -40,18 +39,18 @@ class AuthController extends Controller
     #[Route('POST', '/login')]
     public function postLogin()
     {
-        $email = $this->get('email');
+        $email = $this->post('email');
         $user = $this->db()->from('users')->where('email', '=', $email)->first();
 
         if (!$user) {
-            Session::flash('error', 'Invalid credentials');
+            flash('error', 'Invalid credentials');
             redirect('/login');
         } else {
             $_SESSION['user_id'] = $user->id;
 
             Cache::set("user_{$user->id}", $user);
 
-            Session::flash('success', 'You are now logged in');
+            flash('success', 'You are now logged in');
             redirect('/');
         }
     }
