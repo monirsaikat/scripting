@@ -1,24 +1,24 @@
-<nav class="navbar navbar-expand-lg bg-body-tertiary">
-    <div class="container">
-        <a class="navbar-brand" href="<?= url('/') ?>">
-            <img src="<?= asset('/images/logo.svg') ?>" alt="logo" />
+<nav class="site-nav navbar navbar-expand-lg">
+    <div class="site-nav__inner">
+        <a class="site-nav__brand navbar-brand" href="<?= url('/') ?>">
+            <img class="site-nav__logo" src="<?= asset('/images/logo.svg') ?>" alt="logo" />
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <button class="site-nav__toggle navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
+            <ul class="site-nav__menu navbar-nav ms-auto">
                 <li class="nav-item">
-                    <a class="nav-link active" href="<?= url('/') ?>">Home</a>
+                    <a class="site-nav__link nav-link" href="<?= url('/') ?>">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= user('admin') ? router()->route('staff.all') : url('/admin/login') ?>">Admin</a>
+                    <a class="site-nav__link nav-link" href="<?= user('admin') ? router()->route('staff.all') : url('/admin/login') ?>">Admin</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= url('/about') ?>">About</a>
+                    <a class="site-nav__link nav-link" href="<?= url('/about') ?>">About</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= url('/contact') ?>">Contact</a>
+                    <a class="site-nav__link nav-link" href="<?= url('/contact') ?>">Contact</a>
                 </li>
             </ul>
         </div>

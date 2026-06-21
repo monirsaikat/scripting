@@ -11,15 +11,15 @@
 </head>
 
 <body>
-    <div id="page" class="bg-light min-vh-100" up-main>
+    <div id="page" class="app-shell app-shell--admin" up-main>
         <?= $this->insert('partials/adminNavbar') ?>
 
         <?= $this->insert('partials/confirmationModal') ?>
 
-        <main id="app">
+        <main id="app" class="app-main">
             <?= $this->insert('partials/flashes') ?>
 
-            <div class="container py-4">
+            <div class="app-container">
                 <?= $this->section('content') ?>
             </div>
         </main>

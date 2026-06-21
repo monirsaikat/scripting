@@ -11,8 +11,8 @@
                     <p>Are you sure to continue?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
-                    <button type="submit" class="btn btn-primary">Sure</button>
+                    <button type="button" class="button button--secondary" data-bs-dismiss="modal">No</button>
+                    <button type="submit" class="button button--primary">Sure</button>
                 </div>
             </form>
         </div>

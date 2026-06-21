@@ -1,28 +1,31 @@
 <?php $this->layout('layouts/main', ['title' => $pageTitle]) ?>
 
-<section class="py-5">
-    <h1>Contact</h1>
+<section class="page page--compact">
+    <div class="form-card">
+        <h1 class="form-card__title">Contact</h1>
+        <p class="form-card__text">Send a message and the server will handle it with a normal PHP form flow.</p>
 
-    <form method="POST" <?= up_form_attrs() ?>>
-        <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+        <form class="form-grid" method="POST" <?= up_form_attrs() ?>>
+            <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Name</label>
-            <input type="text" name="name" value="<?= old('name') ?>" class="form-control" id="name" placeholder="john doe" autofocus>
-        </div>
+            <div class="form-field">
+                <label for="name" class="form-field__label">Name</label>
+                <input type="text" name="name" value="<?= old('name') ?>" class="form-control" id="name" placeholder="John Doe" autofocus>
+            </div>
 
-        <div class="mb-3">
-            <label for="email" class="form-label">Email</label>
-            <input type="email" name="email" value="<?= old('email') ?>"  class="form-control" id="email" placeholder="name@example.com">
-        </div>
+            <div class="form-field">
+                <label for="email" class="form-field__label">Email</label>
+                <input type="email" name="email" value="<?= old('email') ?>" class="form-control" id="email" placeholder="name@example.com">
+            </div>
 
-        <div class="mb-3">
-            <label for="message" class="form-label">Message</label>
-            <textarea class="form-control"  name="message" id="message" rows="3"></textarea>
-        </div>
+            <div class="form-field">
+                <label for="message" class="form-field__label">Message</label>
+                <textarea class="form-control" name="message" id="message" rows="4" placeholder="How can we help?"></textarea>
+            </div>
 
-        <div class="d-flex justify-content-end">
-            <button class="btn btn-primary">Submit</button>
-        </div>
-    </form>
+            <div class="form-actions">
+                <button class="button button--primary">Submit</button>
+            </div>
+        </form>
+    </div>
 </section>

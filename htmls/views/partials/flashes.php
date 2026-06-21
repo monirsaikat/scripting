@@ -1,4 +1,4 @@
-<div class="container mt-3">
+<div class="app-container pt-3">
     <?php if ($message = Src\Session::getFlash('success')): ?>
         <div class="alert alert-success" data-auto-dismiss><?= $message ?></div>
     <?php endif ?>

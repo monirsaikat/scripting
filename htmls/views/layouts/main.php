@@ -11,16 +11,16 @@
 </head>
 
 <body>
-    <div id="page" up-main>
+    <div id="page" class="app-shell" up-main>
         <?= $this->insert('partials/navbar') ?>
 
         <?= $this->insert('partials/confirmationModal') ?>
 
 
-        <main id="app">
+        <main id="app" class="app-main">
             <?= $this->insert('partials/flashes') ?>
 
-            <div class="container">
+            <div class="app-container">
                 <?= $this->section('content') ?>
             </div>
         </main>
