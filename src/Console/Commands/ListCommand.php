@@ -3,20 +3,30 @@
 namespace Src\Console\Commands;
 
 use Src\Console\Command;
+use Src\Console\Kernel;
 
 class ListCommand extends Command
 {
     protected string $name = 'list';
     protected string $description = 'List all available commands';
 
+    protected ?Kernel $kernel = null;
+
+    public function setKernel(Kernel $kernel): void
+    {
+        $this->kernel = $kernel;
+    }
+
     public function handle(array $args): int
     {
         global $kernel;
 
+        $source = $this->kernel ?? $kernel ?? null;
+
         $this->line("\nAvailable Commands:\n");
 
         $rows = [];
-        foreach ($kernel->getCommands() ?? [] as $cmd) {
+        foreach (($source ? $source->getCommands() : []) as $cmd) {
             $rows[] = [$cmd->getName(), $cmd->getDescription()];
         }
 

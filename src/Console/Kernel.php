@@ -3,10 +3,14 @@
 namespace Src\Console;
 
 use Src\Console\Commands\ListCommand;
+use Src\Console\Commands\MakeControllerCommand;
 use Src\Console\Commands\MakeMigrationCommand;
+use Src\Console\Commands\MakeMiddlewareCommand;
+use Src\Console\Commands\MakeModelCommand;
 use Src\Console\Commands\MigrateCommand;
-use Src\Console\Commands\MigrateRollbackCommand;
 use Src\Console\Commands\MigrateRefreshCommand;
+use Src\Console\Commands\MigrateRollbackCommand;
+use Src\Console\Commands\MigrateStatusCommand;
 
 class Kernel
 {
@@ -20,10 +24,14 @@ class Kernel
     protected function registerCommands(): void
     {
         $this->register(new ListCommand());
+        $this->register(new MakeControllerCommand());
         $this->register(new MakeMigrationCommand());
+        $this->register(new MakeMiddlewareCommand());
+        $this->register(new MakeModelCommand());
         $this->register(new MigrateCommand());
-        $this->register(new MigrateRollbackCommand());
         $this->register(new MigrateRefreshCommand());
+        $this->register(new MigrateRollbackCommand());
+        $this->register(new MigrateStatusCommand());
     }
 
     public function register(Command $command): void

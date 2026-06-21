@@ -6,14 +6,13 @@ require __DIR__ . '/../vendor/autoload.php';
 use Src\Console\Kernel;
 use Src\Application;
 
-global $app;
+global $app, $kernel;
 
-// Show all errors in CLI
 error_reporting(E_ALL);
 ini_set('display_errors', '1');
 
 try {
-    $app = new Application();
+    $app    = new Application();
     $kernel = new Kernel();
     $kernel->handle($argv);
 } catch (\Exception $e) {

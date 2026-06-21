@@ -76,7 +76,7 @@ class StaffController extends Controller
             redirect('/staffs');
         }
 
-        $this->db()->update('_  users', [
+        $this->db()->update('users', [
             'first_name' => $firstName,
             'last_name'  => $lastName,
             'email'      => $email,
