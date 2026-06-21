@@ -158,6 +158,7 @@
   <div class="section-label">Core</div>
   <a href="#routing">Routing</a>
   <a href="#controllers">Controllers</a>
+  <a href="#auth">Authentication</a>
   <a href="#middleware">Middleware</a>
   <a href="#requests">Request &amp; Response</a>
 
@@ -212,6 +213,7 @@
       <tr><th>Component</th><th>Class / Path</th><th>What it does</th></tr>
       <tr><td>Application</td><td><code>Src\Application</code></td><td>Bootstraps the container, providers, and routes</td></tr>
       <tr><td>Router</td><td><code>Src\Router</code></td><td>PHP-attribute-based routing with dynamic parameters</td></tr>
+      <tr><td>Auth</td><td><code>Src\Auth</code></td><td>Session-backed multi-guard authentication for users, admins, staff, and custom guards</td></tr>
       <tr><td>Database</td><td><code>Src\Database</code></td><td>Fluent query builder, singleton PDO connection</td></tr>
       <tr><td>Schema</td><td><code>Src\Database\Schema</code></td><td>DDL facade — create / alter / drop tables fluently</td></tr>
       <tr><td>Blueprint</td><td><code>Src\Database\Blueprint</code></td><td>Column builder used inside Schema callbacks</td></tr>
@@ -368,16 +370,81 @@ php bin/artisan migrate</code></pre>
       <div class="method-card"><code>$this->validation(): array</code><small>Returns validation errors</small></div>
     </div>
     <h3>Access Control</h3>
-    <pre><code>#[<span class="cls">Auth</span>]   <span class="cmt">// redirect to /login if not authenticated</span>
-#[<span class="cls">Guest</span>]  <span class="cmt">// redirect to / if already logged in</span>
+    <pre><code>#[<span class="cls">Auth</span>]   <span class="cmt">// default "user" guard, redirect to /login if not authenticated</span>
+#[<span class="cls">Guest</span>]  <span class="cmt">// default "user" guard, redirect to / if already logged in</span>
 #[<span class="cls">Route</span>(<span class="str">'GET'</span>, <span class="str">'/dashboard'</span>)]
 <span class="kw">public function</span> <span class="fn">dashboard</span>() { ... }</code></pre>
+    <p>For admin, staff, vendor, or other areas, use a named guard: <code>#[Auth('admin', '/admin/login')]</code>.</p>
     <h3>Scaffold</h3>
     <pre><code>php bin/artisan make:controller ArticleController
 php bin/artisan make:controller ArticleController --resource</code></pre>
   </section>
 
   <!-- ─── MIDDLEWARE ─── -->
+  <section id="auth">
+    <h2>Authentication Guards</h2>
+    <p>Authentication is guard-aware. Each guard stores its own session ID, so a client app can keep <code>user</code>, <code>admin</code>, <code>staff</code>, or any other login area separate.</p>
+    <div class="callout info">
+      <strong>Default guard</strong>
+      The default guard is <code>user</code>. Existing code using <code>#[Auth]</code>, <code>#[Guest]</code>, <code>auth()</code>, and <code>user()</code> continues to use that guard.
+    </div>
+
+    <h3>Guard API</h3>
+    <pre><code><span class="cmt">// Default "user" guard</span>
+<span class="fn">auth</span>()-><span class="fn">login</span>(<span class="var">$user</span>);
+<span class="var">$user</span> = <span class="fn">user</span>();                 <span class="cmt">// same as auth('user')->user()</span>
+<span class="fn">auth</span>()-><span class="fn">logout</span>();
+
+<span class="cmt">// Named "admin" guard</span>
+<span class="fn">auth</span>(<span class="str">'admin'</span>)-><span class="fn">login</span>(<span class="var">$admin</span>);
+<span class="var">$admin</span> = <span class="fn">user</span>(<span class="str">'admin'</span>);       <span class="cmt">// same as auth('admin')->user()</span>
+<span class="fn">auth</span>(<span class="str">'admin'</span>)-><span class="fn">check</span>();
+<span class="fn">auth</span>(<span class="str">'admin'</span>)-><span class="fn">logout</span>();
+
+<span class="cls">\Src\Auth</span>::<span class="fn">logoutAll</span>();       <span class="cmt">// logout every active guard</span></code></pre>
+
+    <table>
+      <tr><th>Method</th><th>Description</th></tr>
+      <tr><td><code>auth($guard = 'user')</code></td><td>Return an auth guard instance</td></tr>
+      <tr><td><code>login($account)</code></td><td>Store the account ID in session and cache the full account object</td></tr>
+      <tr><td><code>user()</code></td><td>Return the cached account for the guard, or null</td></tr>
+      <tr><td><code>id()</code></td><td>Return the authenticated account ID for the guard</td></tr>
+      <tr><td><code>check()</code></td><td>True when the guard is authenticated</td></tr>
+      <tr><td><code>guest()</code></td><td>True when the guard is not authenticated</td></tr>
+      <tr><td><code>logout()</code></td><td>Clear one guard session and cache entry</td></tr>
+      <tr><td><code>\Src\Auth::logoutAll()</code></td><td>Clear all active guard sessions</td></tr>
+    </table>
+
+    <h3>Protected Routes</h3>
+    <pre><code>#[<span class="cls">Auth</span>(<span class="str">'admin'</span>, <span class="str">'/admin/login'</span>)]
+#[<span class="cls">Route</span>(<span class="str">'GET'</span>, <span class="str">'/admin/dashboard'</span>)]
+<span class="kw">public function</span> <span class="fn">dashboard</span>()
+{
+    <span class="var">$admin</span> = <span class="fn">user</span>(<span class="str">'admin'</span>);
+}
+
+#[<span class="cls">Guest</span>(<span class="str">'admin'</span>, <span class="str">'/admin/dashboard'</span>)]
+#[<span class="cls">Route</span>(<span class="str">'GET'</span>, <span class="str">'/admin/login'</span>)]
+<span class="kw">public function</span> <span class="fn">adminLogin</span>() { ... }</code></pre>
+
+    <h3>Example Admin Login</h3>
+    <pre><code>#[<span class="cls">Guest</span>(<span class="str">'admin'</span>, <span class="str">'/admin/dashboard'</span>)]
+#[<span class="cls">Route</span>(<span class="str">'POST'</span>, <span class="str">'/admin/login'</span>)]
+<span class="kw">public function</span> <span class="fn">postAdminLogin</span>()
+{
+    <span class="var">$email</span> = <span class="var">$this</span>-><span class="fn">post</span>(<span class="str">'email'</span>);
+    <span class="var">$admin</span> = <span class="var">$this</span>-><span class="fn">db</span>()-><span class="fn">from</span>(<span class="str">'admins'</span>)-><span class="fn">where</span>(<span class="str">'email'</span>, <span class="str">'='</span>, <span class="var">$email</span>)-><span class="fn">first</span>();
+
+    <span class="kw">if</span> (!<span class="var">$admin</span>) {
+        <span class="fn">flash</span>(<span class="str">'error'</span>, <span class="str">'Invalid credentials'</span>);
+        <span class="fn">redirect</span>(<span class="str">'/admin/login'</span>);
+    }
+
+    <span class="fn">auth</span>(<span class="str">'admin'</span>)-><span class="fn">login</span>(<span class="var">$admin</span>);
+    <span class="fn">redirect</span>(<span class="str">'/admin/dashboard'</span>);
+}</code></pre>
+  </section>
+
   <section id="middleware">
     <h2>Middleware</h2>
     <pre><code>php bin/artisan make:middleware RateLimitMiddleware</code></pre>
@@ -709,7 +776,8 @@ php bin/artisan make:model Post --migration   <span class="cmt"># also creates m
       <tr><td><code>redirect(string)</code></td><td>Send Location header and exit</td></tr>
       <tr><td><code>flash(key, msg)</code></td><td>One-time flash message</td></tr>
       <tr><td><code>old(key, default)</code></td><td>Previously submitted form value</td></tr>
-      <tr><td><code>user()</code></td><td>Authenticated user from cache</td></tr>
+      <tr><td><code>auth(guard)</code></td><td>Get a session-backed auth guard instance</td></tr>
+      <tr><td><code>user(guard)</code></td><td>Authenticated account from the selected guard cache</td></tr>
       <tr><td><code>timing(time)</code></td><td>Timing utility for date formatting</td></tr>
       <tr><td><code>generateCsrfToken()</code></td><td>Get / create CSRF token</td></tr>
     </table>
@@ -858,12 +926,15 @@ php bin/artisan make:model Post --migration   <span class="cmt"># also creates m
     <table>
       <tr><th>Attribute</th><th>Location</th><th>Effect</th></tr>
       <tr><td><code>#[Route(method, path, name?)]</code></td><td>Controller method</td><td>Registers as HTTP route</td></tr>
-      <tr><td><code>#[Auth]</code></td><td>Controller method</td><td>Redirects to /login if not logged in</td></tr>
-      <tr><td><code>#[Guest]</code></td><td>Controller method</td><td>Redirects to / if already logged in</td></tr>
+      <tr><td><code>#[Auth(guard?, redirectTo?)]</code></td><td>Controller method</td><td>Redirects guests for the selected guard</td></tr>
+      <tr><td><code>#[Guest(guard?, redirectTo?)]</code></td><td>Controller method</td><td>Redirects authenticated accounts for the selected guard</td></tr>
     </table>
     <pre><code>#[<span class="cls">Auth</span>]
 #[<span class="cls">Route</span>(<span class="str">'GET'</span>, <span class="str">'/settings'</span>)]
 <span class="kw">public function</span> <span class="fn">settings</span>() { ... }</code></pre>
+    <pre><code>#[<span class="cls">Auth</span>(<span class="str">'admin'</span>, <span class="str">'/admin/login'</span>)]
+#[<span class="cls">Route</span>(<span class="str">'GET'</span>, <span class="str">'/admin/settings'</span>)]
+<span class="kw">public function</span> <span class="fn">adminSettings</span>() { ... }</code></pre>
     <div class="callout info">
       <strong>Multiple attributes</strong>
       Stack any number of attributes above a method — they are evaluated in declaration order.

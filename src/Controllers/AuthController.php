@@ -5,7 +5,6 @@ namespace Src\Controllers;
 use Src\Attributes\Auth;
 use Src\Attributes\Guest;
 use Src\Attributes\Route;
-use Src\Cache;
 use Src\Models\User;
 
 class AuthController extends Controller
@@ -15,12 +14,7 @@ class AuthController extends Controller
     #[Route('GET', '/logout')]
     public function logout()
     {
-        if (isset($_SESSION['user_id'])) {
-            Cache::delete("user_{$_SESSION['user_id']}");
-        }
-
-        session_unset();
-        session_destroy();
+        auth()->logout();
         flash('success', 'You are logged out');
         redirect('/login');
     }
@@ -46,9 +40,7 @@ class AuthController extends Controller
             flash('error', 'Invalid credentials');
             redirect('/login');
         } else {
-            $_SESSION['user_id'] = $user->id;
-
-            Cache::set("user_{$user->id}", $user);
+            auth()->login($user);
 
             flash('success', 'You are now logged in');
             redirect('/');

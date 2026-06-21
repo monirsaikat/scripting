@@ -308,6 +308,88 @@ class UserController extends Controller
 }
 ```
 
+## Authentication Guards
+
+Authentication is guard-aware, so client apps can keep separate sessions for users,
+admins, vendors, staff, or any other auth area. The default guard is `user`, so
+old code using `#[Auth]`, `#[Guest]`, `auth()`, and `user()` keeps working.
+
+### Guard API
+
+```php
+// Log in a normal user on the default "user" guard
+auth()->login($user);
+
+// Log in an admin on a separate "admin" guard
+auth('admin')->login($admin);
+
+// Read the authenticated account
+$user = user(); // same as auth('user')->user()
+$admin = user('admin'); // same as auth('admin')->user()
+
+// Check and logout
+auth('admin')->check();
+auth('admin')->logout();
+\Src\Auth::logoutAll();
+```
+
+The object passed to `login()` must have an `id` property because the guard stores
+that ID in the session and caches the full object.
+
+### Route Attributes
+
+Route attributes accept a guard name and optional redirect path:
+
+```php
+use Src\Attributes\Auth;
+use Src\Attributes\Guest;
+use Src\Attributes\Route;
+
+#[Auth('admin', '/admin/login')]
+#[Route('GET', '/admin/dashboard')]
+public function dashboard()
+{
+    $admin = user('admin');
+}
+
+#[Guest('admin', '/admin/dashboard')]
+#[Route('GET', '/admin/login')]
+public function adminLogin()
+{
+    // ...
+}
+```
+
+### Example Admin Login
+
+```php
+#[Guest('admin', '/admin/dashboard')]
+#[Route('POST', '/admin/login')]
+public function postAdminLogin()
+{
+    $email = $this->post('email');
+    $admin = $this->db()->from('admins')->where('email', '=', $email)->first();
+
+    if (!$admin) {
+        flash('error', 'Invalid credentials');
+        redirect('/admin/login');
+    }
+
+    auth('admin')->login($admin);
+
+    flash('success', 'Admin logged in');
+    redirect('/admin/dashboard');
+}
+
+#[Auth('admin', '/admin/login')]
+#[Route('GET', '/admin/logout')]
+public function adminLogout()
+{
+    auth('admin')->logout();
+    redirect('/admin/login');
+}
+```
+
 ## Routing
 
 Routes are defined using attributes in controllers:

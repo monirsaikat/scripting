@@ -7,13 +7,18 @@ use Attribute;
 #[Attribute(Attribute::TARGET_METHOD)]
 class Guest
 {
-    public function __construct() {
+    private string $guard;
+    private string $redirectTo;
+
+    public function __construct(string $guard = 'user', string $redirectTo = '/') {
+        $this->guard = $guard;
+        $this->redirectTo = $redirectTo;
     }
 
     public function handle()
     {
-        if (isset($_SESSION['user_id'])) {
-            redirect('/');
+        if (auth($this->guard)->check()) {
+            redirect($this->redirectTo);
             exit();
         }
     }

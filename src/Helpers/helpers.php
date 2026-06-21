@@ -1,6 +1,5 @@
 <?php
 
-use Src\Cache;
 use Src\Session;
 use Src\Util\Timing;
 
@@ -81,13 +80,14 @@ if (!function_exists('app')) {
 }
 
 
-function user()
+function auth(string $guard = 'user'): \Src\Auth
 {
-    if (@$_SESSION['user_id']) {
-        return Cache::get("user_{$_SESSION['user_id']}");
-    }
+    return new \Src\Auth($guard);
+}
 
-    return null;
+function user(string $guard = 'user')
+{
+    return auth($guard)->user();
 }
 
 function systemInfo()
