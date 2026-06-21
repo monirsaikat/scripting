@@ -1,7 +1,7 @@
 <?php $this->layout('layouts/main', ['title' => $pageTitle]) ?>
 
 <section class="py-5">
-    <form action="<?= url('/login') ?>" method="POST">
+    <form action="<?= url('/login') ?>" method="POST" <?= up_form_attrs() ?>>
         <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
         <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">Email address</label>

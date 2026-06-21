@@ -413,6 +413,93 @@ Email: admin@example.com
 Password: admin123
 ```
 
+## Unpoly Frontend Layer
+
+Unpoly is integrated as the framework's first-class progressive enhancement layer.
+Views are still plain server-rendered PHP, but navigation and forms feel like a
+single-page app without a build step.
+
+### What Is Built In
+
+- `layouts/main.php` and `layouts/admin.php` load local Unpoly files from `public/vendor/unpoly`.
+- Both layouts expose `<div id="page" up-main>` as the default swappable shell.
+- Page content still lives in `<main id="app">` for smaller manual targets.
+- Same-origin links are followed by Unpoly automatically.
+- Forms are submitted by Unpoly automatically.
+- Flash messages live inside `#page`, so redirects and validation responses update them.
+- Failed form submissions should re-render with HTTP `422`.
+- Redirects still use normal `Location` headers and also send `X-Up-Location` for Unpoly.
+
+### Helper API
+
+```php
+up()->isRequest();              // true for Unpoly fragment requests
+up()->target();                 // X-Up-Target request header
+up()->failTarget();             // X-Up-Fail-Target request header
+up()->mode();                   // root, modal, drawer, popup, ...
+up()->isLayer();                // true when rendering inside an overlay
+up()->setTarget('#page');       // send X-Up-Target response header
+up()->setTitle('Dashboard');    // send X-Up-Title response header
+up()->acceptLayer(['id' => 1]); // close/accept current overlay
+up()->dismissLayer();           // dismiss current overlay
+up()->emit('user:saved');       // emit a browser event after rendering
+
+up_attrs(['up-target' => '#page']);
+up_link_attrs();                // up-follow + up-target="#page"
+up_form_attrs();                // up-submit + success/fail target "#page"
+up_modal_attrs();               // up-layer="new" + target "#app"
+```
+
+### View Conventions
+
+Use the default app fragment for full-page interactions:
+
+```php
+<a href="<?= url('/staffs') ?>" <?= up_link_attrs() ?>>Users</a>
+
+<form method="POST" action="<?= url('/contact') ?>" <?= up_form_attrs() ?>>
+    <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
+    ...
+</form>
+```
+
+Open any server-rendered route in a modal:
+
+```php
+<a href="<?= url('/users/create') ?>" <?= up_modal_attrs() ?>>Create user</a>
+```
+
+Opt out when a link or form must do a full browser load:
+
+```html
+<a href="/download" data-no-up>Download</a>
+<form method="POST" action="/export" data-no-up>...</form>
+```
+
+### Controller Conventions
+
+Successful POST handlers may keep using `redirect()`:
+
+```php
+flash('success', 'Saved');
+redirect('/staffs');
+```
+
+Validation failures should re-render the same view with `422`:
+
+```php
+if ($errors) {
+    flash('error', $this->renderErrors());
+
+    return $this->renderUnprocessable('contact', [
+        'pageTitle' => 'Contact',
+    ]);
+}
+```
+
+The `renderUnprocessable()` helper makes Unpoly treat the response as a failed
+submission and replace the form's `up-fail-target`.
+
 ## Routing
 
 Routes are defined using attributes in controllers:

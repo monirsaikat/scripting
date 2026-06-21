@@ -38,7 +38,9 @@ class AuthController extends Controller
 
         if (!$user) {
             flash('error', 'Invalid credentials');
-            redirect('/login');
+            return $this->renderUnprocessable('auth/login', [
+                'pageTitle' => 'Login',
+            ]);
         } else {
             auth()->login($user);
 

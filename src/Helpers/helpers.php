@@ -90,6 +90,41 @@ function user(string $guard = 'user')
     return auth($guard)->user();
 }
 
+function up(): \Src\Unpoly
+{
+    return new \Src\Unpoly();
+}
+
+function up_attrs(array $attributes = []): string
+{
+    return up()->attrs($attributes);
+}
+
+function up_link_attrs(string $target = \Src\Unpoly::MAIN_TARGET, array $attributes = []): string
+{
+    return up_attrs(array_merge([
+        'up-follow' => true,
+        'up-target' => $target,
+    ], $attributes));
+}
+
+function up_form_attrs(string $target = \Src\Unpoly::MAIN_TARGET, array $attributes = []): string
+{
+    return up_attrs(array_merge([
+        'up-submit' => true,
+        'up-target' => $target,
+        'up-fail-target' => $target,
+    ], $attributes));
+}
+
+function up_modal_attrs(string $target = \Src\Unpoly::CONTENT_TARGET, array $attributes = []): string
+{
+    return up_attrs(array_merge([
+        'up-layer' => 'new',
+        'up-target' => $target,
+    ], $attributes));
+}
+
 function systemInfo()
 {
     return 'system';
@@ -137,6 +172,12 @@ function arrayToObject(array $array): stdClass
 
 function redirect($path)
 {
+    if (up()->isRequest()) {
+        up()->setTarget(\Src\Unpoly::SHELL_TARGET);
+        up()->setLocation($path);
+        up()->expireCache();
+    }
+
     header('Location: ' . url($path));
     exit;
 }

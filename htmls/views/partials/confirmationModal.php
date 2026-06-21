@@ -5,7 +5,7 @@
                 <h1 class="modal-title fs-5" id="confirmModalLabel">Confirm?</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="POST">
+            <form method="POST" <?= up_form_attrs() ?>>
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>" />
                 <div class="modal-body">
                     <p>Are you sure to continue?</p>

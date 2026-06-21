@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@faker-js/faker": "^9.4.0"
+    "@faker-js/faker": "^9.4.0",
+    "unpoly": "^3.14.3"
   }
 }

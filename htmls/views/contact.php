@@ -3,7 +3,7 @@
 <section class="py-5">
     <h1>Contact</h1>
 
-    <form method="POST">
+    <form method="POST" <?= up_form_attrs() ?>>
         <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 
         <div class="mb-3">

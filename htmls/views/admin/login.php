@@ -8,7 +8,7 @@
                     <h1 class="h4 mb-1">Admin Login</h1>
                     <p class="text-muted mb-4">Sign in with your admin account.</p>
 
-                    <form action="<?= url('/admin/login') ?>" method="POST">
+                    <form action="<?= url('/admin/login') ?>" method="POST" <?= up_form_attrs() ?>>
                         <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 
                         <div class="mb-3">

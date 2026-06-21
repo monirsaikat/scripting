@@ -27,14 +27,18 @@ class AdminController extends Controller
 
         if ($this->validation()) {
             flash('error', $this->renderErrors());
-            redirect('/admin/login');
+            return $this->renderUnprocessable('admin/login', [
+                'pageTitle' => 'Admin Login',
+            ]);
         }
 
         $admin = $this->db()->from('admins')->where('email', '=', $email)->first();
 
         if (!$admin || !$admin->is_active || !password_verify($password, $admin->password)) {
             flash('error', 'Invalid admin credentials');
-            redirect('/admin/login');
+            return $this->renderUnprocessable('admin/login', [
+                'pageTitle' => 'Admin Login',
+            ]);
         }
 
         unset($admin->password);

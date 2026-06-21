@@ -7,32 +7,39 @@
     <link rel="shortcut icon" href="<?= asset('/images/favicon.jpg') ?>" type="image/x-icon">
     <title><?= $this->e($title ?? '') ?></title>
 
+    <link rel="stylesheet" href="<?= asset('/vendor/unpoly/unpoly.min.css') ?>">
+    <link rel="stylesheet" href="<?= asset('/vendor/unpoly/unpoly-bootstrap5.min.css') ?>">
+    <script src="<?= asset('/vendor/unpoly/unpoly.min.js') ?>" defer></script>
+    <script src="<?= asset('/js/unpoly-app.js') ?>" defer></script>
+
     <link rel="stylesheet" href="<?= asset('/css/bootstrap.min.css') ?>">
     <link rel="stylesheet" href="<?= asset('/css/styles.css') ?>">
 </head>
 
 <body>
-    <?= $this->insert('partials/navbar') ?>
-    
-    <?= $this->insert('partials/confirmationModal') ?>
+    <div id="page" up-main>
+        <?= $this->insert('partials/navbar') ?>
+
+        <?= $this->insert('partials/confirmationModal') ?>
 
 
-    <div class="container mt-3">
-        <?php
-        if ($message = Src\Session::getFlash('success')) {
-            echo "<div class='alert alert-success'>{$message}</div>";
-        }
+        <main id="app">
+            <div class="container mt-3">
+                <?php
+                if ($message = Src\Session::getFlash('success')) {
+                    echo "<div class='alert alert-success' data-auto-dismiss>{$message}</div>";
+                }
 
-        if ($message = Src\Session::getFlash('error')) {
-            echo "<div class='alert alert-danger'>{$message}</div>";
-        }
-        ?>
-    </div>
+                if ($message = Src\Session::getFlash('error')) {
+                    echo "<div class='alert alert-danger'>{$message}</div>";
+                }
+                ?>
+            </div>
 
-
-
-    <div class="container">
-        <?= $this->section('content') ?>
+            <div class="container">
+                <?= $this->section('content') ?>
+            </div>
+        </main>
     </div>
 
 

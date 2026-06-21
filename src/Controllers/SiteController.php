@@ -141,7 +141,9 @@ class SiteController extends Controller
 
         if ($errors) {
             Session::flash('error', $this->renderErrors());
-            redirect('/contact');
+            return $this->renderUnprocessable('contact', [
+                'pageTitle' => 'Contact',
+            ]);
         }
 
         $contactId = $this->db()->insert('contacts', [

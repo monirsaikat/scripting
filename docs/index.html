@@ -170,6 +170,7 @@
 
   <div class="section-label">Frontend</div>
   <a href="#views">Views &amp; Templating</a>
+  <a href="#unpoly">Unpoly Frontend</a>
   <a href="#helpers">Helper Functions</a>
 
   <div class="section-label">CLI</div>
@@ -224,6 +225,7 @@
       <tr><td>Cache</td><td><code>Src\Cache</code></td><td>Simple in-process file cache</td></tr>
       <tr><td>Container</td><td>Pimple</td><td>PSR-11 dependency injection</td></tr>
       <tr><td>Templates</td><td>Plates 3</td><td>Native-PHP template engine with layouts &amp; sections</td></tr>
+      <tr><td>Unpoly</td><td><code>Src\Unpoly</code></td><td>Progressive enhancement layer for SPA-like navigation, forms, overlays, redirects, and validation</td></tr>
     </table>
   </section>
 
@@ -765,6 +767,33 @@ php bin/artisan make:model Post --migration   <span class="cmt"># also creates m
   </section>
 
   <!-- ─── HELPERS ─── -->
+  <section id="unpoly">
+    <h2>Unpoly Frontend</h2>
+    <p>Unpoly is loaded from <code>public/vendor/unpoly</code> and enhances server-rendered PHP views into a smooth single-page experience without a build step.</p>
+
+    <h3>Built-in Conventions</h3>
+    <table>
+      <tr><th>Feature</th><th>Convention</th></tr>
+      <tr><td>Main fragment</td><td><code>&lt;div id="page" up-main&gt;</code> is the default target</td></tr>
+      <tr><td>Links</td><td>Same-origin links are followed automatically unless they use <code>data-no-up</code></td></tr>
+      <tr><td>Forms</td><td>Forms are submitted automatically and target <code>#page</code> by helper convention</td></tr>
+      <tr><td>Validation</td><td>Failed submissions re-render with HTTP <code>422</code></td></tr>
+      <tr><td>Redirects</td><td><code>redirect()</code> sends normal <code>Location</code> plus Unpoly location headers</td></tr>
+      <tr><td>Modals</td><td>Use <code>up_modal_attrs()</code> to open any server-rendered route in an overlay</td></tr>
+    </table>
+
+    <h3>Helpers</h3>
+    <pre><code><span class="fn">up</span>()-><span class="fn">isRequest</span>();
+<span class="fn">up</span>()-><span class="fn">target</span>();
+<span class="fn">up</span>()-><span class="fn">setTarget</span>(<span class="str">'#page'</span>);
+<span class="fn">up</span>()-><span class="fn">acceptLayer</span>([<span class="str">'id'</span> => <span class="num">1</span>]);
+<span class="fn">up</span>()-><span class="fn">emit</span>(<span class="str">'user:saved'</span>);
+
+<span class="fn">up_link_attrs</span>();
+<span class="fn">up_form_attrs</span>();
+<span class="fn">up_modal_attrs</span>();</code></pre>
+  </section>
+
   <section id="helpers">
     <h2>Helper Functions</h2>
     <table>
@@ -778,6 +807,10 @@ php bin/artisan make:model Post --migration   <span class="cmt"># also creates m
       <tr><td><code>old(key, default)</code></td><td>Previously submitted form value</td></tr>
       <tr><td><code>auth(guard)</code></td><td>Get a session-backed auth guard instance</td></tr>
       <tr><td><code>user(guard)</code></td><td>Authenticated account from the selected guard cache</td></tr>
+      <tr><td><code>up()</code></td><td>Unpoly request/response helper</td></tr>
+      <tr><td><code>up_link_attrs()</code></td><td>Attributes for Unpoly-enhanced links</td></tr>
+      <tr><td><code>up_form_attrs()</code></td><td>Attributes for Unpoly-enhanced forms</td></tr>
+      <tr><td><code>up_modal_attrs()</code></td><td>Attributes for opening routes in Unpoly overlays</td></tr>
       <tr><td><code>timing(time)</code></td><td>Timing utility for date formatting</td></tr>
       <tr><td><code>generateCsrfToken()</code></td><td>Get / create CSRF token</td></tr>
     </table>

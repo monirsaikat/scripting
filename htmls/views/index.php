@@ -5,7 +5,7 @@
         <h3>Users/Staff List</h3>
 
         <div class="d-flex  gap-2 align-items-center">
-            <form>
+            <form method="get" action="<?= url('/staffs') ?>" <?= up_form_attrs() ?>>
                 <input type="text" placeholder="Search.." name="search" class="form-control form-control-sm">
             </form>
             <button class="btn btn-primary btn-sm addBtn">Add New</button>
@@ -70,7 +70,7 @@
                 <h1 class="modal-title fs-5" id="exampleModalLabel">Edit Modal</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" action="<?= url('/staffs') ?>">
+            <form method="post" action="<?= url('/staffs') ?>" data-create-url="<?= url('/staffs') ?>" <?= up_form_attrs() ?>>
                 <!-- csrf token must be added here. -->
                 <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
 
@@ -105,52 +105,3 @@
     </div>
 </div>
 
-<?php $this->push('scripts'); ?>
-    <script src="<?= asset('/js/moni.js') ?>"></script>
-
-    <script>
-        (function() {
-            'use strict';
-
-            moni('.hasConfirmation').on('click', function() {
-                moni('#confirmModal').find('form').attr('action', moni(this).data('url'));
-                moni('#confirmModal').show();
-            });
-
-            function setFormData(reset = false, {
-                firstName = '', lastName = '', email = '', address = '', phone = ''
-            }) {
-                moni('[name="first_name"]').val(firstName)
-                moni('[name="last_name"]').val(lastName)
-                moni('[name="email"]').val(email)
-                moni('[name="address"]').val(address)
-                moni('[name="phone"]').val(phone)
-            }
-            
-            // add data
-            moni('.addBtn').on('click', function() {
-                moni('.modal-title').html(`Add New Staff`);
-                setFormData(true, {});
-                moni('#editModal').show();
-            });
-            
-            // edit data
-            moni('.btnEdit').on('click', function() {
-                const id = moni(this).data('id');
-
-                const firstName = moni(this).data('firstName')
-                const lastName  = moni(this).data('lastName')
-                const phone     = moni(this).data('phone')
-                const email     = moni(this).data('email')
-                const address   = moni(this).data('address')
-                
-                moni('#editModal').find('form').attr('action', moni(this).data('url'));
-                
-                setFormData(false, {firstName, email, address, phone, lastName});
-                moni('.modal-title').html(`Editing data for ${firstName}`);
-                moni('#editModal').show();
-            });
-        })();
-    </script>
-
-<?php $this->end(); ?>

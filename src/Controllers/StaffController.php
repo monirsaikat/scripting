@@ -48,7 +48,10 @@ class StaffController extends Controller
 
         if ($errors) {
             flash('error', $this->renderErrors());
-            redirect('/staffs');
+            return $this->renderUnprocessable('index', [
+                'pageTitle' => 'Users/Staff',
+                'users' => $this->db()->from('users')->latest('created_at')->paginate(10),
+            ]);
         }
 
         $this->db()->insert('users', [
@@ -78,7 +81,10 @@ class StaffController extends Controller
 
         if ($errors) {
             flash('error', $this->renderErrors());
-            redirect('/staffs');
+            return $this->renderUnprocessable('index', [
+                'pageTitle' => 'Users/Staff',
+                'users' => $this->db()->from('users')->latest('created_at')->paginate(10),
+            ]);
         }
 
         $this->db()->update('users', [

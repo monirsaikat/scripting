@@ -3,3 +3,8 @@
 body {
   font-family: "Montserrat", serif;
 }
+
+#page:focus,
+#page:focus-visible {
+  outline: none;
+}

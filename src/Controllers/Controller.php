@@ -23,6 +23,11 @@ class Controller
         return $this->container['db'];
     }
 
+    public function up(): \Src\Unpoly
+    {
+        return up();
+    }
+
     public function __construct(Container $container)
     {
         $this->container = $container;
@@ -32,9 +37,24 @@ class Controller
         $this->postData  = $_POST;
     }
 
-    public function render($view, $data = [])
+    public function render($view, $data = [], int $statusCode = 200, array $headers = [])
     {
+        http_response_code($statusCode);
+
+        foreach ($headers as $name => $value) {
+            header("$name: $value");
+        }
+
         echo $this->templates->render($view, $data);
+    }
+
+    public function renderUnprocessable($view, $data = [], ?string $target = null)
+    {
+        if ($target) {
+            up()->setTarget($target);
+        }
+
+        return $this->render($view, $data, 422);
     }
 
     public function post($key = null, $validationRules = null)
