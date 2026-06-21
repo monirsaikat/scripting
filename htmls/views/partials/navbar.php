@@ -12,7 +12,7 @@
                     <a class="nav-link active" href="<?= url('/') ?>">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="<?= router()->route('staff.all') ?>">Staffs</a>
+                    <a class="nav-link" href="<?= user('admin') ? router()->route('staff.all') : url('/admin/login') ?>">Admin</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="<?= url('/about') ?>">About</a>

@@ -2,11 +2,13 @@
 
 namespace Src\Controllers;
 
+use Src\Attributes\Auth;
 use Src\Attributes\Route;
 use Src\Models\User;
 
 class StaffController extends Controller
 {
+    #[Auth('admin', '/admin/login')]
     #[Route('GET', '/users')]
     public function users()
     {
@@ -15,6 +17,7 @@ class StaffController extends Controller
         $this->json($users);
     }
 
+    #[Auth('admin', '/admin/login')]
     #[Route('GET', '/staffs', 'staff.all')]
     public function index()
     {
@@ -31,6 +34,7 @@ class StaffController extends Controller
         $this->render('index', compact('pageTitle', 'users'));
     }
 
+    #[Auth('admin', '/admin/login')]
     #[Route('POST', '/staffs')]
     public function saveStaff()
     {
@@ -60,6 +64,7 @@ class StaffController extends Controller
         redirect('/staffs');
     }
 
+    #[Auth('admin', '/admin/login')]
     #[Route('POST', '/staffs/{id}/update', 'staff.update')]
     public function updateStaff($id)
     {
@@ -91,6 +96,7 @@ class StaffController extends Controller
         redirect('/staffs');
     }
 
+    #[Auth('admin', '/admin/login')]
     #[Route('POST', '/staffs/delete/{id}', 'staff.delete')]
     public function deleteStaff($id)
     {

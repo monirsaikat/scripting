@@ -390,6 +390,29 @@ public function adminLogout()
 }
 ```
 
+## Admin Panel
+
+The framework includes a guarded admin panel using the `admin` auth guard.
+
+- `GET /admin/login` - admin login form
+- `POST /admin/login` - admin login submit
+- `GET /admin` - admin dashboard, protected by `#[Auth('admin', '/admin/login')]`
+- `GET /admin/logout` - logout only the `admin` guard
+- `GET /staffs` - user/staff management, protected by the `admin` guard
+
+Run migrations to create the `admins` table and seed the default admin:
+
+```bash
+php bin/artisan migrate
+```
+
+Default development credentials:
+
+```text
+Email: admin@example.com
+Password: admin123
+```
+
 ## Routing
 
 Routes are defined using attributes in controllers:

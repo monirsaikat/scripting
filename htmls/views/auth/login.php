@@ -2,6 +2,7 @@
 
 <section class="py-5">
     <form action="<?= url('/login') ?>" method="POST">
+        <input type="hidden" name="csrf_token" value="<?= generateCsrfToken() ?>">
         <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">Email address</label>
             <input type="email" name="email" autofocus class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">

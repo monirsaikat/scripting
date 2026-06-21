@@ -1,4 +1,4 @@
-<?php $this->layout('layouts/main', ['title' => $pageTitle]) ?>
+<?php $this->layout('layouts/admin', ['title' => $pageTitle]) ?>
 
 <section class="py-5">
     <div class="mb-3 d-flex align-items-center justify-content-between">
