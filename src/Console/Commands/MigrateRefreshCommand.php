@@ -9,6 +9,8 @@ class MigrateRefreshCommand extends MigrateCommand
 
     public function handle(array $args): int
     {
+        $seed = in_array('--seed', $args, true);
+
         try {
             $this->ensureMigrationsTable();
 
@@ -46,6 +48,12 @@ class MigrateRefreshCommand extends MigrateCommand
             }
 
             $this->success("Database refresh completed successfully!");
+
+            if ($seed) {
+                $this->line('');
+                (new DbSeedCommand())->handle([]);
+            }
+
             return 0;
         } catch (Exception $e) {
             $this->error($e->getMessage());

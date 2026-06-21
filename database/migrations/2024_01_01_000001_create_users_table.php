@@ -17,6 +17,8 @@ class CreateUsersTable
             $table->tinyInteger('age')->unsigned()->nullable();
             $table->text('address')->nullable();
             $table->string('password')->nullable();
+            $table->enum('role', ['admin', 'editor', 'viewer'])->default('viewer');
+            $table->enum('status', ['active', 'inactive', 'pending'])->default('active');
             $table->timestamps();
         });
     }

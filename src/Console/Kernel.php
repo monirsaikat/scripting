@@ -7,7 +7,9 @@ use Src\Console\Commands\MakeControllerCommand;
 use Src\Console\Commands\MakeMigrationCommand;
 use Src\Console\Commands\MakeMiddlewareCommand;
 use Src\Console\Commands\MakeModelCommand;
+use Src\Console\Commands\DbSeedCommand;
 use Src\Console\Commands\MigrateCommand;
+use Src\Console\Commands\MigrateFreshCommand;
 use Src\Console\Commands\MigrateRefreshCommand;
 use Src\Console\Commands\MigrateRollbackCommand;
 use Src\Console\Commands\MigrateStatusCommand;
@@ -29,9 +31,11 @@ class Kernel
         $this->register(new MakeMiddlewareCommand());
         $this->register(new MakeModelCommand());
         $this->register(new MigrateCommand());
+        $this->register(new MigrateFreshCommand());
         $this->register(new MigrateRefreshCommand());
         $this->register(new MigrateRollbackCommand());
         $this->register(new MigrateStatusCommand());
+        $this->register(new DbSeedCommand());
     }
 
     public function register(Command $command): void

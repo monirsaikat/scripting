@@ -2,7 +2,6 @@
 
 use Src\Database\Schema;
 use Src\Database\Blueprint;
-use Src\Database;
 
 class CreateAdminsTable
 {
@@ -17,13 +16,6 @@ class CreateAdminsTable
             $table->timestamp('last_login_at')->nullable();
             $table->timestamps();
         });
-
-        Database::getInstance()->insert('admins', [
-            'name' => 'Super Admin',
-            'email' => 'admin@example.com',
-            'password' => password_hash('admin123', PASSWORD_DEFAULT),
-            'is_active' => 1,
-        ]);
     }
 
     public function down(): void
