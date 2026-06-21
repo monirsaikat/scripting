@@ -174,7 +174,8 @@ class Router
      */
     public function dispatch($method, $uri)
     {
-        $uri = str_replace($this->baseUrl, '', $uri); // Remove base URL
+        $uri = str_replace($this->baseUrl, '', $uri);
+        $uri = ($uri !== '/' && str_ends_with($uri, '/')) ? rtrim($uri, '/') : $uri;
 
         $matchedRoute = $this->match($method, $uri);
 

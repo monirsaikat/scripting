@@ -5,9 +5,6 @@ Options -Indexes
 RewriteCond %{REQUEST_URI} ^/public/
 RewriteRule ^ - [L]
 
-# Redirect all requests to index.php except for actual files and directories
+# Route all non-file requests to index.php (directories also route to PHP so /admin doesn't conflict with the admin/ folder)
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-
-# Redirect to index.php for all routes
 RewriteRule ^(.*)$ index.php [QSA,L]

@@ -1,6 +1,40 @@
 /* ──────────────────────────────────────────────
    VISITORS HERO CHART
 ────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────
+   CHART CARDS
+────────────────────────────────────────────── */
+.chart-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 14px 16px 10px;
+}
+.chart-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.chart-card-title { font-size: 12px; font-weight: 600; color: var(--text-main); }
+.chart-tabs       { display: flex; gap: 4px; }
+.chart-tab {
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 3px;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all .15s;
+}
+.chart-tab.active { background: var(--accent-teal); color: #fff; border-color: var(--accent-teal); }
+.chart-canvas-wrap { position: relative; height: 180px; }
+.device-legend { flex: 1; min-width: 0; }
+
+/* ──────────────────────────────────────────────
+   VISITORS HERO CHART
+────────────────────────────────────────────── */
 .visitors-hero {
   background: linear-gradient(135deg, #3f7de8 0%, #29b6d2 100%);
   padding: 16px 22px 0;
@@ -54,11 +88,29 @@
   cursor: pointer;
 }
 
-#visitorsChart { height: 160px !important; display: block; }
+.visitors-chart { position: relative; height: 160px; }
+#visitorsChart  { display: block; }
 
 /* ──────────────────────────────────────────────
    KPI CARDS
 ────────────────────────────────────────────── */
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.kpi-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; margin-bottom: 10px;
+}
+.kpi-change {
+  font-size: 11px; font-weight: 600;
+  display: inline-flex; align-items: center; gap: 2px; margin-top: 4px;
+}
+.kpi-change.up   { color: var(--accent-green); }
+.kpi-change.down { color: var(--accent-red); }
+
 .kpi-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -93,7 +145,7 @@
 }
 
 .device-label { font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
-#deviceChart  { height: 110px !important; }
+#deviceChart  { display: block; }
 
 .device-breakdown {
   display: flex;
@@ -165,7 +217,7 @@
   margin-bottom: 12px;
 }
 
-#pageviewsChart { height: 160px !important; }
+#pvChart { display: block; }
 
 .toggle-btn-group { display: flex; }
 .toggle-btn {
