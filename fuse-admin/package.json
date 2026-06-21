@@ -1,0 +1,13 @@
+{
+  "name": "fuse-admin",
+  "version": "1.0.0",
+  "description": "FUSE Analytics Admin Panel",
+  "scripts": {
+    "setup": "node scripts/copy-vendor.js"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.2",
+    "bootstrap-icons": "^1.11.3",
+    "chart.js": "^4.4.1"
+  }
+}

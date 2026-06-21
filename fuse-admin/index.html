@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FUSE – Analytics Dashboard</title>
+
+  <!-- Vendor CSS -->
+  <link rel="stylesheet" href="assets/vendor/bootstrap/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="assets/vendor/bootstrap-icons/bootstrap-icons.min.css" />
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="assets/css/tokens.css" />
+  <link rel="stylesheet" href="assets/css/layout.css" />
+  <link rel="stylesheet" href="assets/css/sidebar.css" />
+  <link rel="stylesheet" href="assets/css/topbar.css" />
+  <link rel="stylesheet" href="assets/css/components.css" />
+
+  <!-- Chart.js (must be in <head> or before body charts) -->
+  <script src="assets/vendor/chart.js/chart.umd.js"></script>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ═══════════════════════════════════════════
+       LEFT SIDEBAR
+  ═══════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-icon">F</div>
+      <span class="logo-text">FUSE</span>
+      <i class="bi bi-list hamburger"></i>
+    </div>
+
+    <!-- Applications -->
+    <div class="sidebar-label">Applications</div>
+
+    <!-- Dashboards (expanded with sub-nav) -->
+    <div class="nav-item-wrapper">
+      <div class="sidebar-nav-link active">
+        <i class="bi bi-speedometer2 nav-icon"></i>
+        <span>Dashboards</span>
+        <i class="bi bi-chevron-down nav-arrow"></i>
+      </div>
+      <div class="sub-nav">
+        <div class="sidebar-nav-link active"><span>Analytics</span></div>
+        <div class="sidebar-nav-link"><span>Project</span></div>
+      </div>
+    </div>
+
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-calendar3 nav-icon"></i><span>Calendar</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-cart3 nav-icon"></i><span>E-Commerce</span>
+      <i class="bi bi-chevron-right nav-arrow"></i>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-mortarboard nav-icon"></i><span>Academy</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-envelope nav-icon"></i><span>Mail</span>
+      <span class="nav-badge ms-auto" style="background:var(--badge-blue);">25</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-layout-text-window nav-icon"></i><span>Mail Ngx</span>
+      <span class="nav-badge ms-auto" style="background:var(--badge-orange);">13</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-chat-dots nav-icon"></i><span>Chat</span>
+      <span class="nav-badge ms-auto" style="background:var(--badge-green);">15</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-folder2 nav-icon"></i><span>File Manager</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-people nav-icon"></i><span>Contacts</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-check2-square nav-icon"></i><span>To-Do</span>
+      <span class="nav-badge ms-auto"
+            style="background:var(--accent-orange);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0;">3</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-kanban nav-icon"></i><span>Scrumboard</span>
+    </a>
+
+    <!-- Pages -->
+    <div class="sidebar-label">Pages</div>
+
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-shield-lock nav-icon"></i><span>Authentication</span>
+      <span class="nav-badge ms-auto" style="background:var(--badge-blue);">10</span>
+      <i class="bi bi-chevron-right nav-arrow" style="margin-left:4px;"></i>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-hourglass nav-icon"></i><span>Coming Soon</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-exclamation-triangle nav-icon"></i><span>Errors</span>
+      <i class="bi bi-chevron-right nav-arrow"></i>
+    </a>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN AREA
+  ═══════════════════════════════════════════ -->
+  <div class="main-area">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-icons">
+        <i class="bi bi-grid-3x3-gap"></i>
+        <i class="bi bi-envelope"></i>
+        <i class="bi bi-bell"></i>
+        <i class="bi bi-check2-circle"></i>
+        <div class="topbar-sep"></div>
+        <i class="bi bi-star-fill"></i>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-avatar">CA</div>
+        <span class="topbar-username">Charlie Adams</span>
+        <i class="bi bi-chevron-down" style="font-size:10px;"></i>
+        <div class="topbar-sep"></div>
+        <i class="bi bi-flag"></i>
+        <span class="lang">EN</span>
+        <div class="topbar-sep"></div>
+        <i class="bi bi-layout-text-sidebar"></i>
+        <i class="bi bi-three-dots-vertical"></i>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content-area">
+
+      <!-- Middle scroll pane -->
+      <div class="content-main">
+
+        <!-- VISITORS HERO CHART -->
+        <div class="visitors-hero">
+          <div class="visitors-hero-top">
+            <div>
+              <h5>Visitors</h5>
+              <p>Unique visitors by month</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="year-tabs">
+                <span class="year-tab">2016</span>
+                <span class="year-tab">2017</span>
+                <span class="year-tab active">2018</span>
+              </div>
+              <div class="gear-btn"><i class="bi bi-gear-fill"></i></div>
+            </div>
+          </div>
+          <canvas id="visitorsChart"></canvas>
+        </div>
+
+        <!-- KPI ROW -->
+        <div class="inner-pad">
+          <div class="row gx-3 gy-3">
+
+            <!-- Left 3-col KPI section -->
+            <div class="col-lg-8">
+              <p class="section-title">How are your active users trending over time?</p>
+              <div class="row gx-3">
+
+                <!-- Conversion -->
+                <div class="col-4 gap-col">
+                  <div class="kpi-card">
+                    <div class="kpi-label">Conversion</div>
+                    <div class="kpi-value">492</div>
+                    <div class="mt-1">
+                      <span class="kpi-trend up">
+                        <i class="bi bi-graph-up-arrow"></i> 13% of target
+                      </span>
+                    </div>
+                    <div class="kpi-chart-wrap">
+                      <canvas id="convChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Impressions -->
+                <div class="col-4 gap-col">
+                  <div class="kpi-card">
+                    <div class="kpi-label">Impressions</div>
+                    <div class="kpi-value">87k</div>
+                    <div class="mt-1">
+                      <span class="kpi-trend up">
+                        <i class="bi bi-graph-up-arrow"></i> 12% of target
+                      </span>
+                    </div>
+                    <div class="kpi-chart-wrap">
+                      <canvas id="impChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Visits -->
+                <div class="col-4 gap-col">
+                  <div class="kpi-card">
+                    <div class="kpi-label">Visits</div>
+                    <div class="kpi-value">882</div>
+                    <div class="mt-1">
+                      <span class="kpi-trend down">
+                        <i class="bi bi-graph-down-arrow"></i> -9% of target
+                      </span>
+                    </div>
+                    <div class="kpi-chart-wrap">
+                      <canvas id="visChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Right device card -->
+            <div class="col-lg-4 gap-col">
+              <p class="section-title">What are your top devices?</p>
+              <div class="device-card">
+                <div class="device-label">Sessions by device</div>
+                <div class="d-flex justify-content-center">
+                  <canvas id="deviceChart" style="max-width:110px;"></canvas>
+                </div>
+                <div class="device-breakdown">
+                  <div class="device-item">
+                    <div class="d-name">Desktop</div>
+                    <div class="d-pct">92.8%</div>
+                    <div class="d-delta down"><i class="bi bi-caret-down-fill"></i> 0.6%</div>
+                  </div>
+                  <div class="device-item">
+                    <div class="d-name">Mobile</div>
+                    <div class="d-pct">6.1%</div>
+                    <div class="d-delta down"><i class="bi bi-caret-down-fill"></i> 0.7%</div>
+                  </div>
+                  <div class="device-item">
+                    <div class="d-name">Tablet</div>
+                    <div class="d-pct">1.1%</div>
+                    <div class="d-delta up"><i class="bi bi-caret-up-fill"></i> 0.1%</div>
+                  </div>
+                </div>
+                <div class="overview-footer">
+                  <span class="last-days">
+                    Last 7 days <i class="bi bi-chevron-down" style="font-size:9px;"></i>
+                  </span>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="overview-link">Overview</span>
+                    <div class="overview-gear"><i class="bi bi-gear-fill"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- PAGE VIEWS + SALES ROW -->
+          <div class="row gx-3">
+
+            <!-- Visitors & Page views -->
+            <div class="col-lg-8 gap-col">
+              <div class="pageviews-card">
+                <div class="pageviews-header">
+                  <p class="section-title mb-0">How many pages your users visit?</p>
+                  <div class="toggle-btn-group">
+                    <button class="toggle-btn">Yesterday</button>
+                    <button class="toggle-btn active">Today</button>
+                  </div>
+                </div>
+                <p class="mb-2" style="font-size:12px; color:var(--text-muted);">
+                  Visitors &amp; Page views
+                </p>
+                <canvas id="pageviewsChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Sales -->
+            <div class="col-lg-4 gap-col">
+              <div class="section-title">How are your sales?</div>
+              <div class="sales-card">
+                <div class="sales-hero">
+                  <div class="sales-hero-top">
+                    <div>
+                      <div class="s-label fw-bold" style="color:#fff; font-size:13px;">Sales</div>
+                      <div class="s-sub">Lifetime sum of your sales</div>
+                    </div>
+                    <i class="bi bi-three-dots-vertical s-dots"></i>
+                  </div>
+                  <div class="sales-number">
+                    <span class="s-val">12,540</span>
+                    <span class="s-delta">
+                      <i class="bi bi-caret-up-fill" style="color:#2ecc71;"></i> 321 (2.09%)
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT AVATARS COLUMN -->
+      <div class="right-avatars">
+        <div class="r-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2)">CA</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c)">MR</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">JD</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">SL</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#fa709a,#fee140)">AB</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">KW</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#fccb90,#d57eeb)">TP</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#a1c4fd,#c2e9fb)">NM</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#fd7043,#ff8f00)">GH</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#00c853,#64dd17)">RK</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#304ffe,#42a5f5)">EL</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#ef6c00,#ffa000)">PQ</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Vendor JS -->
+<script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- App JS -->
+<script src="assets/js/charts.js"></script>
+<script src="assets/js/sidebar.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+/* ──────────────────────────────────────────────
+   DESIGN TOKENS
+────────────────────────────────────────────── */
+:root {
+  --sidebar-bg:     #2d3142;
+  --sidebar-w:      220px;
+  --sidebar-active: #3d4460;
+  --accent-blue:    #4472ca;
+  --accent-teal:    #29b6d2;
+  --accent-red:     #e74c3c;
+  --accent-green:   #2ecc71;
+  --accent-orange:  #e67e22;
+  --topbar-h:       48px;
+  --body-bg:        #f5f6fa;
+  --card-bg:        #ffffff;
+  --text-main:      #2d3142;
+  --text-muted:     #9098ad;
+  --border:         #e8eaf0;
+  --badge-blue:     #3498db;
+  --badge-orange:   #e67e22;
+  --badge-green:    #2ecc71;
+}

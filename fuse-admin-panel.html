@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FUSE – Analytics Dashboard</title>
+
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" />
+  <!-- Chart.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+
+  <style>
+    /* ──────────────────────────────────────────────
+       TOKENS
+    ────────────────────────────────────────────── */
+    :root {
+      --sidebar-bg:    #2d3142;
+      --sidebar-w:     220px;
+      --sidebar-active:#3d4460;
+      --accent-blue:   #4472ca;
+      --accent-teal:   #29b6d2;
+      --accent-red:    #e74c3c;
+      --accent-green:  #2ecc71;
+      --accent-orange: #e67e22;
+      --topbar-h:      48px;
+      --body-bg:       #f5f6fa;
+      --card-bg:       #ffffff;
+      --text-main:     #2d3142;
+      --text-muted:    #9098ad;
+      --border:        #e8eaf0;
+      --badge-blue:    #3498db;
+      --badge-orange:  #e67e22;
+      --badge-green:   #2ecc71;
+    }
+
+    /* ──────────────────────────────────────────────
+       RESET / BASE
+    ────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px; background: var(--body-bg); color: var(--text-main); overflow: hidden; }
+
+    /* ──────────────────────────────────────────────
+       LAYOUT SHELL
+    ────────────────────────────────────────────── */
+    .app-shell { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ──────────────────────────────────────────────
+       LEFT SIDEBAR
+    ────────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      overflow-x: hidden;
+      color: rgba(255,255,255,.75);
+      z-index: 100;
+    }
+    .sidebar::-webkit-scrollbar { width: 0; }
+
+    /* Logo bar */
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 16px;
+      height: var(--topbar-h);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      flex-shrink: 0;
+    }
+    .sidebar-logo .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--accent-teal);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 800; color: #fff; letter-spacing: -.5px;
+    }
+    .sidebar-logo .logo-text {
+      font-size: 15px; font-weight: 700; color: #fff; letter-spacing: 1px; text-transform: uppercase;
+    }
+    .sidebar-logo .hamburger { margin-left: auto; color: rgba(255,255,255,.5); cursor: pointer; font-size: 16px; }
+
+    /* Section label */
+    .sidebar-label {
+      font-size: 10px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: rgba(255,255,255,.35);
+      padding: 18px 16px 6px;
+    }
+
+    /* Nav item */
+    .nav-item-wrapper { position: relative; }
+    .sidebar-nav-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 16px; cursor: pointer;
+      color: rgba(255,255,255,.65); font-size: 12.5px;
+      text-decoration: none; transition: background .15s, color .15s;
+      border-radius: 0;
+    }
+    .sidebar-nav-link:hover { background: rgba(255,255,255,.07); color: rgba(255,255,255,.9); }
+    .sidebar-nav-link.active { background: var(--sidebar-active); color: #fff; }
+    .sidebar-nav-link .nav-icon { width: 16px; text-align: center; font-size: 14px; opacity: .7; }
+    .sidebar-nav-link .nav-badge {
+      margin-left: auto; padding: 1px 6px; border-radius: 10px;
+      font-size: 10px; font-weight: 700; color: #fff;
+    }
+    .sidebar-nav-link .nav-arrow { margin-left: auto; font-size: 10px; opacity: .5; }
+    .sidebar-nav-link.active .nav-icon { opacity: 1; }
+
+    /* Sub-nav */
+    .sub-nav { background: rgba(0,0,0,.15); }
+    .sub-nav .sidebar-nav-link { padding-left: 42px; font-size: 12px; }
+
+    /* ──────────────────────────────────────────────
+       MAIN AREA
+    ────────────────────────────────────────────── */
+    .main-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ──────────────────────────────────────────────
+       TOP BAR
+    ────────────────────────────────────────────── */
+    .topbar {
+      height: var(--topbar-h); min-height: var(--topbar-h);
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center;
+      padding: 0 16px; gap: 12px;
+      flex-shrink: 0; z-index: 50;
+    }
+    .topbar-icons { display: flex; align-items: center; gap: 14px; color: #7a8298; font-size: 15px; }
+    .topbar-icons i { cursor: pointer; }
+    .topbar-sep { width: 1px; height: 22px; background: var(--border); margin: 0 4px; }
+    .topbar-icons .bi-star-fill { color: #f1c40f; }
+    .topbar-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+
+    .topbar-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff;
+    }
+    .topbar-username { font-size: 12.5px; color: var(--text-main); font-weight: 500; }
+    .topbar-right .bi-chevron-down { font-size: 10px; color: var(--text-muted); }
+    .topbar-right .lang { font-size: 11px; font-weight: 600; color: var(--text-muted); }
+    .topbar-right i { color: var(--text-muted); font-size: 14px; cursor: pointer; }
+
+    /* ──────────────────────────────────────────────
+       CONTENT AREA
+    ────────────────────────────────────────────── */
+    .content-area { flex: 1; display: flex; overflow: hidden; }
+
+    /* ──────────────────────────────────────────────
+       MIDDLE SCROLL PANE
+    ────────────────────────────────────────────── */
+    .content-main {
+      flex: 1; overflow-y: auto; overflow-x: hidden;
+      padding: 0;
+    }
+    .content-main::-webkit-scrollbar { width: 5px; }
+    .content-main::-webkit-scrollbar-thumb { background: #d1d5e0; border-radius: 4px; }
+
+    /* ──────────────────────────────────────────────
+       VISITORS HEADER CHART
+    ────────────────────────────────────────────── */
+    .visitors-hero {
+      background: linear-gradient(135deg, #3f7de8 0%, #29b6d2 100%);
+      padding: 16px 22px 0;
+      position: relative; overflow: hidden;
+    }
+    .visitors-hero-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 4px; }
+    .visitors-hero h5 { color: #fff; font-size: 14px; font-weight: 600; margin: 0; }
+    .visitors-hero p  { color: rgba(255,255,255,.7); font-size: 11px; margin: 0; }
+
+    .year-tabs { display: flex; gap: 6px; align-items: center; }
+    .year-tab {
+      font-size: 11px; color: rgba(255,255,255,.65); cursor: pointer;
+      padding: 2px 6px; border-radius: 3px; transition: background .15s;
+    }
+    .year-tab:hover { background: rgba(255,255,255,.15); }
+    .year-tab.active { background: rgba(255,255,255,.25); color: #fff; font-weight: 600; }
+    .gear-btn {
+      width: 28px; height: 28px; background: rgba(255,255,255,.2);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 12px; cursor: pointer;
+    }
+
+    #visitorsChart { height: 160px !important; display: block; }
+
+    /* ──────────────────────────────────────────────
+       SECTION TITLE
+    ────────────────────────────────────────────── */
+    .section-title { font-size: 12.5px; font-weight: 600; color: var(--text-main); margin-bottom: 14px; }
+
+    /* ──────────────────────────────────────────────
+       KPI CARDS
+    ────────────────────────────────────────────── */
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 14px 16px 10px;
+      height: 100%;
+    }
+    .kpi-label { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+    .kpi-value { font-size: 28px; font-weight: 700; color: var(--text-main); line-height: 1; }
+    .kpi-trend {
+      font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; gap: 2px;
+    }
+    .kpi-trend.up   { color: var(--accent-green); }
+    .kpi-trend.down { color: var(--accent-red); }
+    .kpi-subtitle   { font-size: 11px; color: var(--text-muted); }
+    .kpi-chart-wrap { height: 48px; margin-top: 8px; }
+
+    /* ──────────────────────────────────────────────
+       SESSIONS BY DEVICE CARD
+    ────────────────────────────────────────────── */
+    .device-card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px;
+      padding: 14px 16px; height: 100%;
+    }
+    .device-label { font-size: 11px; color: var(--text-muted); margin-bottom: 14px; }
+    #deviceChart { height: 110px !important; }
+    .device-breakdown { display: flex; justify-content: space-around; margin-top: 12px; }
+    .device-item { text-align: center; }
+    .device-item .d-name { font-size: 10px; color: var(--text-muted); }
+    .device-item .d-pct  { font-size: 13px; font-weight: 700; color: var(--text-main); }
+    .device-item .d-delta { font-size: 10px; font-weight: 600; }
+    .device-item .d-delta.down { color: var(--accent-red); }
+    .device-item .d-delta.up   { color: var(--accent-green); }
+
+    /* Gear btn teal accent */
+    .overview-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border);
+    }
+    .overview-footer .last-days {
+      font-size: 11px; color: var(--text-main); display: flex; align-items: center; gap: 4px; cursor: pointer;
+    }
+    .overview-footer .overview-link {
+      font-size: 10px; font-weight: 700; letter-spacing: .5px;
+      color: var(--accent-teal); text-transform: uppercase; cursor: pointer;
+    }
+    .overview-gear {
+      width: 26px; height: 26px; background: var(--accent-teal);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 11px; cursor: pointer;
+    }
+
+    /* ──────────────────────────────────────────────
+       VISITORS & PAGE VIEWS CARD
+    ────────────────────────────────────────────── */
+    .pageviews-card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px;
+      padding: 14px 16px;
+    }
+    .pageviews-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    #pageviewsChart { height: 160px !important; }
+
+    .toggle-btn-group { display: flex; }
+    .toggle-btn {
+      font-size: 11px; padding: 3px 10px; border: 1px solid var(--border);
+      cursor: pointer; background: #fff; color: var(--text-muted);
+    }
+    .toggle-btn:first-child { border-radius: 3px 0 0 3px; }
+    .toggle-btn:last-child  { border-radius: 0 3px 3px 0; border-left: none; }
+    .toggle-btn.active { background: var(--accent-blue); color: #fff; border-color: var(--accent-blue); }
+
+    /* ──────────────────────────────────────────────
+       SALES CARD
+    ────────────────────────────────────────────── */
+    .sales-card {
+      background: var(--card-bg); border: 1px solid var(--border); border-radius: 4px;
+      overflow: hidden;
+    }
+    .sales-hero {
+      background: linear-gradient(135deg, #2980b9, #3498db);
+      padding: 12px 14px 10px;
+    }
+    .sales-hero-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .sales-hero .s-label { font-size: 11px; color: rgba(255,255,255,.75); margin-bottom: 2px; }
+    .sales-hero .s-sub   { font-size: 10px; color: rgba(255,255,255,.55); }
+    .sales-hero .s-dots  { color: rgba(255,255,255,.6); font-size: 16px; cursor: pointer; }
+    .sales-number { margin-top: 8px; }
+    .sales-number .s-val { font-size: 30px; font-weight: 800; color: #fff; }
+    .sales-number .s-delta { font-size: 11px; color: rgba(255,255,255,.75); margin-left: 8px; }
+
+    /* ──────────────────────────────────────────────
+       RIGHT AVATARS COLUMN
+    ────────────────────────────────────────────── */
+    .right-avatars {
+      width: 44px; min-width: 44px;
+      background: var(--card-bg);
+      border-left: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      align-items: center; padding: 8px 0; gap: 6px;
+      overflow-y: auto;
+    }
+    .right-avatars::-webkit-scrollbar { width: 0; }
+    .r-avatar {
+      width: 30px; height: 30px; border-radius: 50%;
+      object-fit: cover; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+
+    /* ──────────────────────────────────────────────
+       SECTION PADDING HELPERS
+    ────────────────────────────────────────────── */
+    .inner-pad { padding: 18px 20px; }
+
+    /* ──────────────────────────────────────────────
+       UTILITY
+    ────────────────────────────────────────────── */
+    .gap-col { margin-bottom: 18px; }
+  </style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ═══════════════════════════════════════════
+       LEFT SIDEBAR
+  ═══════════════════════════════════════════ -->
+  <aside class="sidebar">
+
+    <!-- Logo -->
+    <div class="sidebar-logo">
+      <div class="logo-icon">F</div>
+      <span class="logo-text">FUSE</span>
+      <i class="bi bi-list hamburger"></i>
+    </div>
+
+    <!-- Applications section -->
+    <div class="sidebar-label">Applications</div>
+
+    <!-- Dashboards (expanded) -->
+    <div class="nav-item-wrapper">
+      <div class="sidebar-nav-link active">
+        <i class="bi bi-speedometer2 nav-icon"></i>
+        <span>Dashboards</span>
+        <i class="bi bi-chevron-down nav-arrow"></i>
+      </div>
+      <div class="sub-nav">
+        <div class="sidebar-nav-link active"><span>Analytics</span></div>
+        <div class="sidebar-nav-link"><span>Project</span></div>
+      </div>
+    </div>
+
+    <a class="sidebar-nav-link" href="#"><i class="bi bi-calendar3 nav-icon"></i><span>Calendar</span></a>
+    <a class="sidebar-nav-link" href="#"><i class="bi bi-cart3 nav-icon"></i><span>E-Commerce</span><i class="bi bi-chevron-right nav-arrow"></i></a>
+    <a class="sidebar-nav-link" href="#"><i class="bi bi-mortarboard nav-icon"></i><span>Academy</span></a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-envelope nav-icon"></i><span>Mail</span>
+      <span class="nav-badge ms-auto" style="background:var(--badge-blue);">25</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-layout-text-window nav-icon"></i><span>Mail Ngx</span>
+      <span class="nav-badge ms-auto" style="background:var(--badge-orange);">13</span>
+    </a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-chat-dots nav-icon"></i><span>Chat</span>
+      <span class="nav-badge ms-auto" style="background:var(--badge-green);">15</span>
+    </a>
+    <a class="sidebar-nav-link" href="#"><i class="bi bi-folder2 nav-icon"></i><span>File Manager</span></a>
+    <a class="sidebar-nav-link" href="#"><i class="bi bi-people nav-icon"></i><span>Contacts</span></a>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-check2-square nav-icon"></i><span>To-Do</span>
+      <span class="nav-badge ms-auto" style="background:var(--accent-orange);border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0;">3</span>
+    </a>
+    <a class="sidebar-nav-link" href="#"><i class="bi bi-kanban nav-icon"></i><span>Scrumboard</span></a>
+
+    <!-- Pages section -->
+    <div class="sidebar-label">Pages</div>
+    <a class="sidebar-nav-link" href="#">
+      <i class="bi bi-shield-lock nav-icon"></i><span>Authentication</span>
+      <span class="nav-badge ms-auto" style="background:var(--badge-blue);">10</span>
+      <i class="bi bi-chevron-right nav-arrow" style="margin-left:4px;"></i>
+    </a>
+    <a class="sidebar-nav-link" href="#"><i class="bi bi-hourglass nav-icon"></i><span>Coming Soon</span></a>
+    <a class="sidebar-nav-link" href="#"><i class="bi bi-exclamation-triangle nav-icon"></i><span>Errors</span><i class="bi bi-chevron-right nav-arrow"></i></a>
+
+  </aside>
+
+  <!-- ═══════════════════════════════════════════
+       MAIN AREA
+  ═══════════════════════════════════════════ -->
+  <div class="main-area">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="topbar-icons">
+        <i class="bi bi-grid-3x3-gap"></i>
+        <i class="bi bi-envelope"></i>
+        <i class="bi bi-bell"></i>
+        <i class="bi bi-check2-circle"></i>
+        <div class="topbar-sep"></div>
+        <i class="bi bi-star-fill"></i>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-avatar">CA</div>
+        <span class="topbar-username">Charlie Adams</span>
+        <i class="bi bi-chevron-down" style="font-size:10px; color:var(--text-muted);"></i>
+        <div class="topbar-sep"></div>
+        <i class="bi bi-flag"></i>
+        <span class="lang">EN</span>
+        <div class="topbar-sep"></div>
+        <i class="bi bi-layout-text-sidebar"></i>
+        <i class="bi bi-three-dots-vertical"></i>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content-area">
+
+      <!-- ── Middle scroll pane ── -->
+      <div class="content-main">
+
+        <!-- ── VISITORS HERO CHART ── -->
+        <div class="visitors-hero">
+          <div class="visitors-hero-top">
+            <div>
+              <h5>Visitors</h5>
+              <p>Unique visitors by month</p>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <div class="year-tabs">
+                <span class="year-tab">2016</span>
+                <span class="year-tab">2017</span>
+                <span class="year-tab active">2018</span>
+              </div>
+              <div class="gear-btn"><i class="bi bi-gear-fill"></i></div>
+            </div>
+          </div>
+          <canvas id="visitorsChart"></canvas>
+        </div>
+
+        <!-- ── KPI ROW ── -->
+        <div class="inner-pad">
+          <div class="row gx-3 gy-3">
+            <!-- Left 3-col KPI section -->
+            <div class="col-lg-8">
+              <p class="section-title">How are your active users trending over time?</p>
+              <div class="row gx-3">
+
+                <!-- Conversion -->
+                <div class="col-4 gap-col">
+                  <div class="kpi-card">
+                    <div class="kpi-label">Conversion</div>
+                    <div class="kpi-value">492</div>
+                    <div class="mt-1">
+                      <span class="kpi-trend up"><i class="bi bi-graph-up-arrow"></i> 13% of target</span>
+                    </div>
+                    <div class="kpi-chart-wrap">
+                      <canvas id="convChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Impressions -->
+                <div class="col-4 gap-col">
+                  <div class="kpi-card">
+                    <div class="kpi-label">Impressions</div>
+                    <div class="kpi-value">87k</div>
+                    <div class="mt-1">
+                      <span class="kpi-trend up"><i class="bi bi-graph-up-arrow"></i> 12% of target</span>
+                    </div>
+                    <div class="kpi-chart-wrap">
+                      <canvas id="impChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Visits -->
+                <div class="col-4 gap-col">
+                  <div class="kpi-card">
+                    <div class="kpi-label">Visits</div>
+                    <div class="kpi-value">882</div>
+                    <div class="mt-1">
+                      <span class="kpi-trend down"><i class="bi bi-graph-down-arrow"></i> -9% of target</span>
+                    </div>
+                    <div class="kpi-chart-wrap">
+                      <canvas id="visChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Right device card -->
+            <div class="col-lg-4 gap-col">
+              <p class="section-title">What are your top devices?</p>
+              <div class="device-card">
+                <div class="device-label">Sessions by device</div>
+                <div class="d-flex justify-content-center">
+                  <canvas id="deviceChart" style="max-width:110px;"></canvas>
+                </div>
+                <div class="device-breakdown">
+                  <div class="device-item">
+                    <div class="d-name">Desktop</div>
+                    <div class="d-pct">92.8%</div>
+                    <div class="d-delta down"><i class="bi bi-caret-down-fill"></i> 0.6%</div>
+                  </div>
+                  <div class="device-item">
+                    <div class="d-name">Mobile</div>
+                    <div class="d-pct">6.1%</div>
+                    <div class="d-delta down"><i class="bi bi-caret-down-fill"></i> 0.7%</div>
+                  </div>
+                  <div class="device-item">
+                    <div class="d-name">Tablet</div>
+                    <div class="d-pct">1.1%</div>
+                    <div class="d-delta up"><i class="bi bi-caret-up-fill"></i> 0.1%</div>
+                  </div>
+                </div>
+                <div class="overview-footer">
+                  <span class="last-days">Last 7 days <i class="bi bi-chevron-down" style="font-size:9px;"></i></span>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="overview-link">Overview</span>
+                    <div class="overview-gear"><i class="bi bi-gear-fill"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── PAGE VIEWS + SALES ROW ── -->
+          <div class="row gx-3">
+
+            <!-- Visitors & Page views -->
+            <div class="col-lg-8 gap-col">
+              <div class="pageviews-card">
+                <div class="pageviews-header">
+                  <p class="section-title mb-0">How many pages your users visit?</p>
+                  <div class="toggle-btn-group">
+                    <button class="toggle-btn">Yesterday</button>
+                    <button class="toggle-btn active">Today</button>
+                  </div>
+                </div>
+                <p class="mb-2" style="font-size:12px; color:var(--text-muted);">Visitors &amp; Page views</p>
+                <!-- Y-axis labels -->
+                <canvas id="pageviewsChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Sales -->
+            <div class="col-lg-4 gap-col">
+              <div class="section-title">How are your sales?</div>
+              <div class="sales-card">
+                <div class="sales-hero">
+                  <div class="sales-hero-top">
+                    <div>
+                      <div class="s-label fw-bold" style="color:#fff;font-size:13px;">Sales</div>
+                      <div class="s-sub">Lifetime sum of your sales</div>
+                    </div>
+                    <i class="bi bi-three-dots-vertical s-dots"></i>
+                  </div>
+                  <div class="sales-number">
+                    <span class="s-val">12,540</span>
+                    <span class="s-delta"><i class="bi bi-caret-up-fill" style="color:#2ecc71;"></i> 321 (2.09%)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div><!-- /row -->
+        </div><!-- /inner-pad -->
+      </div><!-- /content-main -->
+
+      <!-- ── RIGHT AVATARS COLUMN ── -->
+      <div class="right-avatars">
+        <div class="r-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2)">CA</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c)">MR</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">JD</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7)">SL</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#fa709a,#fee140)">AB</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb)">KW</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#fccb90,#d57eeb)">TP</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#a1c4fd,#c2e9fb)">NM</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#fd7043,#ff8f00)">GH</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#00c853,#64dd17)">RK</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#304ffe,#42a5f5)">EL</div>
+        <div class="r-avatar" style="background:linear-gradient(135deg,#ef6c00,#ffa000)">PQ</div>
+      </div>
+
+    </div><!-- /content-area -->
+  </div><!-- /main-area -->
+</div><!-- /app-shell -->
+
+<!-- Bootstrap JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+
+<script>
+/* ──────────────────────────────────────────────
+   CHART DEFAULTS
+────────────────────────────────────────────── */
+Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+Chart.defaults.plugins.legend.display = false;
+Chart.defaults.plugins.tooltip.enabled = true;
+
+/* ──────────────────────────────────────────────
+   1. VISITORS HERO LINE CHART
+────────────────────────────────────────────── */
+const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const visitorsData = [1900, 3000, 3400, 2200, 2900, 3900, 3500, 4100, 3800, 3200, 2800, 3600];
+
+new Chart(document.getElementById('visitorsChart'), {
+  type: 'line',
+  data: {
+    labels: months,
+    datasets: [{
+      data: visitorsData,
+      borderColor: 'rgba(255,255,255,0.9)',
+      backgroundColor: 'rgba(255,255,255,0.12)',
+      borderWidth: 2,
+      pointBackgroundColor: 'rgba(255,255,255,0)',
+      pointBorderColor: 'rgba(255,255,255,0)',
+      pointHoverBackgroundColor: '#fff',
+      pointHoverRadius: 5,
+      tension: 0.4,
+      fill: true
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { top: 10, bottom: 0 } },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false },
+        ticks: { color: 'rgba(255,255,255,0.65)', font: { size: 10 } }
+      },
+      y: {
+        position: 'left',
+        grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false },
+        ticks: {
+          color: 'rgba(255,255,255,0.65)', font: { size: 10 },
+          callback: v => v >= 1000 ? (v/1000).toFixed(1) + 'k' : v
+        }
+      }
+    }
+  }
+});
+
+/* ──────────────────────────────────────────────
+   2. CONVERSION BAR CHART (mini)
+────────────────────────────────────────────── */
+new Chart(document.getElementById('convChart'), {
+  type: 'bar',
+  data: {
+    labels: ['1','2','3','4','5','6','7','8','9'],
+    datasets: [{
+      data: [3,5,4,7,6,5,8,4,6],
+      backgroundColor: '#4472ca',
+      borderRadius: 2,
+      barPercentage: 0.6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { x: { display: false }, y: { display: false } }
+  }
+});
+
+/* ──────────────────────────────────────────────
+   3. IMPRESSIONS LINE CHART (mini)
+────────────────────────────────────────────── */
+new Chart(document.getElementById('impChart'), {
+  type: 'line',
+  data: {
+    labels: ['1','2','3','4','5','6','7','8','9'],
+    datasets: [{
+      data: [40,55,48,70,60,75,58,80,65],
+      borderColor: '#4472ca',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      tension: 0.4,
+      pointRadius: 0
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { x: { display: false }, y: { display: false } }
+  }
+});
+
+/* ──────────────────────────────────────────────
+   4. VISITS BAR CHART (mini, red)
+────────────────────────────────────────────── */
+new Chart(document.getElementById('visChart'), {
+  type: 'bar',
+  data: {
+    labels: ['1','2','3','4','5','6','7','8','9'],
+    datasets: [{
+      data: [8,5,7,4,9,6,5,8,3],
+      backgroundColor: '#e74c3c',
+      borderRadius: 2,
+      barPercentage: 0.6
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    scales: { x: { display: false }, y: { display: false } }
+  }
+});
+
+/* ──────────────────────────────────────────────
+   5. DEVICE DOUGHNUT CHART
+────────────────────────────────────────────── */
+new Chart(document.getElementById('deviceChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Desktop', 'Mobile', 'Tablet'],
+    datasets: [{
+      data: [92.8, 6.1, 1.1],
+      backgroundColor: ['#4472ca', '#29b6d2', '#e8eaf0'],
+      borderWidth: 0,
+      hoverOffset: 4
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '72%',
+    plugins: { legend: { display: false } }
+  }
+});
+
+/* ──────────────────────────────────────────────
+   6. PAGE VIEWS AREA CHART
+────────────────────────────────────────────── */
+new Chart(document.getElementById('pageviewsChart'), {
+  type: 'line',
+  data: {
+    labels: ['','','','','','','','','','','','','','','','','','','',''],
+    datasets: [{
+      data: [3200, 2800, 3600, 4200, 3100, 2600, 3800, 4500, 3900, 3200, 2900, 3600, 4100, 3700, 3300, 4000, 4400, 3800, 3500, 4200],
+      borderColor: '#4472ca',
+      backgroundColor: 'rgba(68, 114, 202, 0.25)',
+      borderWidth: 2.5,
+      tension: 0.4,
+      fill: true,
+      pointRadius: 3,
+      pointBackgroundColor: '#fff',
+      pointBorderColor: '#4472ca',
+      pointBorderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    layout: { padding: { top: 6 } },
+    scales: {
+      x: { grid: { display: false }, ticks: { display: false } },
+      y: {
+        grid: { color: '#eef0f5', drawBorder: false },
+        ticks: {
+          color: '#9098ad', font: { size: 10 },
+          callback: v => v >= 1000 ? (v/1000) + 'k' : v
+        }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>
