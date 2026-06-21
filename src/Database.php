@@ -71,6 +71,11 @@ class Database
         return self::$instance;
     }
 
+    public function getConnection()
+    {
+        return $this->pdo;
+    }
+
     /**
      * Initialize query with a base select statement.
      *

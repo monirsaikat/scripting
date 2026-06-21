@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use Src\Console\Kernel;
+use Src\Application;
+
+global $app;
+
+// Show all errors in CLI
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
+try {
+    $app = new Application();
+    $kernel = new Kernel();
+    $kernel->handle($argv);
+} catch (\Exception $e) {
+    echo "\n❌ Error: " . $e->getMessage() . "\n";
+    echo "\nStack Trace:\n";
+    echo $e->getTraceAsString() . "\n\n";
+    exit(1);
+}

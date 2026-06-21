@@ -1,1 +1,450 @@
-# scripting
+# PHP Scripting Framework
+
+A lightweight, modern PHP framework with built-in CLI tools for database migrations, similar to Laravel's Artisan.
+
+## Features
+
+- 🎯 Simple yet powerful routing system
+- 🔐 Built-in authentication & CSRF protection
+- 🗄️ ORM with Model support
+- 📝 Database migrations (Artisan-style)
+- 🎨 Template engine (Plates)
+- 📦 Dependency injection container (Pimple)
+- 🛠️ Console commands framework
+- 📊 Request logging & timing utilities
+
+## Project Structure
+
+```
+scripting/
+├── bin/
+│   └── artisan              # CLI entry point
+├── config/
+│   └── db.php              # Database configuration
+├── database/
+│   └── migrations/         # Migration files
+├── src/
+│   ├── Application.php     # Main app class
+│   ├── Console/            # CLI framework
+│   │   ├── Command.php
+│   │   ├── Kernel.php
+│   │   └── Commands/       # Built-in commands
+│   ├── Controllers/        # HTTP controllers
+│   ├── Models/             # Database models
+│   ├── Providers/          # Service providers
+│   ├── Middleware/         # HTTP middleware
+│   ├── Exceptions/         # Exception handling
+│   ├── Helpers/            # Helper functions
+│   └── Util/               # Utility classes
+├── views/                  # Template files
+├── public/                 # Web root
+└── vendor/                 # Dependencies
+```
+
+## Installation
+
+1. **Clone/setup the project**
+   ```bash
+   cd scripting
+   composer install
+   ```
+
+2. **Configure database** in `config/db.php`:
+   ```php
+   return [
+       'schema'   => 'mysql',
+       'host'     => 'localhost',
+       'dbname'   => 'scripting',
+       'username' => 'admin',
+       'password' => 'admin1'
+   ];
+   ```
+
+3. **Run migrations**
+   ```bash
+   php bin/artisan migrate
+   ```
+
+## Console Commands (Artisan)
+
+The framework provides a command-line interface similar to Laravel's Artisan. All commands start with `php bin/artisan`.
+
+### Available Commands
+
+#### `list`
+Display all available commands:
+```bash
+php bin/artisan list
+```
+
+#### `make:migration <name>`
+Create a new migration file:
+```bash
+php bin/artisan make:migration create_users_table
+php bin/artisan make:migration add_email_to_users
+```
+
+Creates a file in `database/migrations/` with timestamp and class:
+```php
+<?php
+
+class CreateUsersTable
+{
+    public function up()
+    {
+        // Write your migration code here
+        // $pdo->exec("CREATE TABLE users...");
+    }
+
+    public function down()
+    {
+        // Write rollback code here
+        // $pdo->exec("DROP TABLE users");
+    }
+}
+```
+
+#### `migrate`
+Run all pending migrations:
+```bash
+php bin/artisan migrate
+```
+
+- Checks for migrations not yet executed
+- Creates `migrations` table automatically
+- Tracks which migrations have run
+- Reports success/failure for each migration
+
+#### `migrate:rollback`
+Rollback the last batch of migrations:
+```bash
+php bin/artisan migrate:rollback
+```
+
+- Runs the `down()` method of the last batch
+- Removes migration records from the database
+- Useful for undoing recent changes
+
+#### `migrate:refresh`
+Reset and re-run all migrations (full reset):
+```bash
+php bin/artisan migrate:refresh
+```
+
+- **Warning**: This clears your database!
+- Rolls back all migrations in reverse order
+- Re-runs all migrations from scratch
+- Useful for development/testing
+
+## Writing Migrations
+
+Migrations are PHP files that modify your database schema. Each migration has two methods:
+
+### Migration File Example
+
+```php
+<?php
+
+class CreateUsersTable
+{
+    public function up()
+    {
+        // Get the PDO connection
+        $pdo = (new \Src\Database())->getConnection();
+        
+        $pdo->exec("
+            CREATE TABLE users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                password VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
+    }
+
+    public function down()
+    {
+        $pdo = (new \Src\Database())->getConnection();
+        $pdo->exec("DROP TABLE users");
+    }
+}
+```
+
+### Migration Best Practices
+
+1. **One logical change per migration**
+   - Create tables in separate migrations from adding columns
+   
+2. **Always provide a `down()` method**
+   - Make migrations reversible for development
+   
+3. **Use descriptive names**
+   - `create_users_table` ✅
+   - `add_email_to_users` ✅
+   - `fix_column` ❌
+   
+4. **Test rollbacks**
+   - Run `migrate`, then `migrate:rollback` to verify
+
+## Extending the Framework
+
+### Creating Custom Commands
+
+Create a new command by extending `Src\Console\Command`:
+
+```php
+<?php
+
+namespace Src\Console\Commands;
+
+use Src\Console\Command;
+
+class MyCustomCommand extends Command
+{
+    protected string $name = 'my:command';
+    protected string $description = 'My custom command description';
+
+    public function handle(array $args): int
+    {
+        $this->info('Command executing...');
+        
+        // Do something
+        
+        $this->success('Command completed!');
+        return 0; // 0 = success, 1 = failure
+    }
+}
+```
+
+Then register it in `src/Console/Kernel.php`:
+
+```php
+protected function registerCommands(): void
+{
+    // ... existing commands
+    $this->register(new MyCustomCommand());
+}
+```
+
+### Command Output Methods
+
+- `$this->info('message')` - Information message
+- `$this->success('message')` - Success message (green)
+- `$this->error('message')` - Error message (red)
+- `$this->warn('message')` - Warning message (yellow)
+- `$this->line('message')` - Plain text
+- `$this->table($headers, $rows)` - Format tabular data
+
+### Database Migrations Table
+
+Migrations are tracked in the `migrations` table:
+
+```
+id | migration | batch | executed_at
+---|-----------|-------|-------------
+1  | 2024_01_15_100000_create_users_table.php | 1 | 2024-01-15 10:00:00
+2  | 2024_01_15_100100_add_email_to_users.php | 1 | 2024-01-15 10:01:00
+```
+
+## Database Configuration
+
+Edit `config/db.php`:
+
+```php
+return [
+    'schema'   => 'mysql',      // 'mysql' or 'couchdb'
+    'host'     => 'localhost',
+    'dbname'   => 'scripting',
+    'username' => 'admin',
+    'password' => 'admin1'
+];
+```
+
+Get a PDO connection:
+
+```php
+$db = new \Src\Database();
+$pdo = $db->getConnection();
+$pdo->exec("SELECT * FROM users");
+```
+
+## Models
+
+Define models in `src/Models/`:
+
+```php
+<?php
+
+namespace Src\Models;
+
+class User extends Model
+{
+    protected string $table = 'users';
+
+    public function isAdmin(): bool
+    {
+        return $this->is_admin ?? false;
+    }
+}
+```
+
+## Controllers
+
+Define controllers in `src/Controllers/`:
+
+```php
+<?php
+
+namespace Src\Controllers;
+
+class UserController extends Controller
+{
+    public function index()
+    {
+        $users = \Src\Models\User::all();
+        return view('users.index', ['users' => $users]);
+    }
+}
+```
+
+## Routing
+
+Routes are defined using attributes in controllers:
+
+```php
+<?php
+
+namespace Src\Controllers;
+
+use Src\Attributes\Route;
+
+class UserController extends Controller
+{
+    #[Route('/users', 'GET')]
+    public function index()
+    {
+        // ...
+    }
+
+    #[Route('/users/{id}', 'GET')]
+    public function show($id)
+    {
+        // ...
+    }
+}
+```
+
+## Middleware
+
+Middleware processes requests before they reach controllers. Built-in middleware:
+
+- `CsrfMiddleware` - CSRF token validation
+- Custom middleware in `src/Middleware/`
+
+## Views & Templates
+
+Templates use Plates engine, stored in `views/`:
+
+```php
+<!-- views/users/index.php -->
+<?php $this->layout('layouts/app') ?>
+
+<h1>Users</h1>
+
+<?php foreach ($users as $user): ?>
+    <p><?= $user->name ?></p>
+<?php endforeach; ?>
+```
+
+## Exceptions & Error Handling
+
+Exception handling is configured in `src/Exceptions/ErrorHandler.php`. Custom exceptions:
+
+```php
+<?php
+
+namespace Src\Exceptions;
+
+class AppException extends Exception
+{
+    // Custom app exception
+}
+```
+
+## Logging
+
+Uses Monolog for logging:
+
+```php
+use Monolog\Logger;
+use Monolog\Handlers\StreamHandler;
+
+$logger = new Logger('app');
+$logger->pushHandler(new StreamHandler('logs/app.log'));
+$logger->info('User login', ['user_id' => 123]);
+```
+
+## Testing Migrations
+
+Quick test workflow:
+
+```bash
+# Create migration
+php bin/artisan make:migration create_products_table
+
+# Edit database/migrations/TIMESTAMP_create_products_table.php
+
+# Test running the migration
+php bin/artisan migrate
+
+# Test rollback
+php bin/artisan migrate:rollback
+
+# Test refresh
+php bin/artisan migrate:refresh
+
+# Final run
+php bin/artisan migrate
+```
+
+## Troubleshooting
+
+### "Command not found"
+```bash
+# Make sure you're in the project root
+cd /path/to/scripting
+
+# Try running help
+php bin/artisan help
+```
+
+### "No pending migrations"
+- Check if migrations have already been run
+- Check if migration files exist in `database/migrations/`
+
+### Database connection errors
+- Verify `config/db.php` has correct credentials
+- Ensure database exists: `CREATE DATABASE scripting`
+- Check MySQL is running
+
+### Migration failed
+- Check the error message for SQL syntax errors
+- Review the migration file logic
+- Verify the `down()` method for rollback
+
+## Development Tips
+
+1. **Always create reversible migrations** - write both `up()` and `down()`
+2. **Test migrations** - run migrate, then rollback, then migrate again
+3. **Use migrations for schema only** - don't insert test data in migrations
+4. **Keep migrations small** - easier to debug if something fails
+5. **Use descriptive naming** - future you will appreciate it
+
+## License
+
+This project is open source and available under the MIT License.
+
+## Support
+
+For issues or questions, check the code in `src/` or review the example migrations in `database/migrations/`.
