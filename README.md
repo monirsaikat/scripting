@@ -500,6 +500,27 @@ if ($errors) {
 The `renderUnprocessable()` helper makes Unpoly treat the response as a failed
 submission and replace the form's `up-fail-target`.
 
+### Client JavaScript Structure
+
+Client-side code uses native ES modules and needs no build step. Keep
+`public/js/unpoly-app.js` as the entrypoint and place feature code under
+`public/js/app/`.
+
+```text
+public/js/
+├── unpoly-app.js          # imports and initializes modules
+└── app/
+    ├── dom.js             # DOM helpers and delegated events
+    ├── bootstrap-modals.js # Bootstrap modal wrapper
+    ├── unpoly-config.js   # global Unpoly selectors/events
+    ├── flashes.js         # flash auto-dismiss behavior
+    └── staff.js           # users/staff page interactions
+```
+
+New page behavior should use delegated events or Unpoly compilers so it keeps
+working after `#page` is swapped. Avoid inline page scripts for behavior that
+must survive SPA navigation.
+
 ## Routing
 
 Routes are defined using attributes in controllers:
