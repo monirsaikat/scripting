@@ -521,6 +521,25 @@ New page behavior should use delegated events or Unpoly compilers so it keeps
 working after `#page` is swapped. Avoid inline page scripts for behavior that
 must survive SPA navigation.
 
+### Layout Partials
+
+Shared layout concerns live in `htmls/views/partials/` so public and admin
+layouts stay small:
+
+```text
+htmls/views/partials/
+├── assets.php             # CSS and head scripts
+├── scripts.php            # footer scripts
+├── flashes.php            # flash message rendering
+├── navbar.php             # public navigation
+├── adminNavbar.php        # admin navigation
+├── confirmationModal.php  # shared confirm modal
+```
+
+When adding a new layout, include `partials/assets`, wrap the page in
+`#page up-main`, render `partials/flashes` inside `#app`, and include
+`partials/scripts` before any page-specific scripts.
+
 ## Routing
 
 Routes are defined using attributes in controllers:

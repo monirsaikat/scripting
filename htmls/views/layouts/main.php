@@ -7,12 +7,7 @@
     <link rel="shortcut icon" href="<?= asset('/images/favicon.jpg') ?>" type="image/x-icon">
     <title><?= $this->e($title ?? '') ?></title>
 
-    <link rel="stylesheet" href="<?= asset('/vendor/unpoly/unpoly.min.css') ?>">
-    <link rel="stylesheet" href="<?= asset('/vendor/unpoly/unpoly-bootstrap5.min.css') ?>">
-    <script src="<?= asset('/vendor/unpoly/unpoly.min.js') ?>" defer></script>
-
-    <link rel="stylesheet" href="<?= asset('/css/bootstrap.min.css') ?>">
-    <link rel="stylesheet" href="<?= asset('/css/styles.css') ?>">
+    <?= $this->insert('partials/assets') ?>
 </head>
 
 <body>
@@ -23,17 +18,7 @@
 
 
         <main id="app">
-            <div class="container mt-3">
-                <?php
-                if ($message = Src\Session::getFlash('success')) {
-                    echo "<div class='alert alert-success' data-auto-dismiss>{$message}</div>";
-                }
-
-                if ($message = Src\Session::getFlash('error')) {
-                    echo "<div class='alert alert-danger'>{$message}</div>";
-                }
-                ?>
-            </div>
+            <?= $this->insert('partials/flashes') ?>
 
             <div class="container">
                 <?= $this->section('content') ?>
@@ -42,8 +27,7 @@
     </div>
 
 
-    <script src="<?= asset('/js/bootstrap.bundle.min.js') ?>"></script>
-    <script src="<?= asset('/js/unpoly-app.js') ?>" type="module"></script>
+    <?= $this->insert('partials/scripts') ?>
 
     <?= $this->section('scripts') ?>
 </body>
