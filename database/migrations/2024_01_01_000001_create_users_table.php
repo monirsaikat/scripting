@@ -1,30 +1,28 @@
 <?php
 
+use Src\Database\Schema;
+use Src\Database\Blueprint;
+
 class CreateUsersTable
 {
-    public function up()
+    public function up(): void
     {
-        $pdo = \Src\Database::getInstance()->getConnection();
-        $pdo->exec("
-            CREATE TABLE IF NOT EXISTS users (
-                id          INT AUTO_INCREMENT PRIMARY KEY,
-                first_name  VARCHAR(100) NOT NULL,
-                last_name   VARCHAR(100) NOT NULL,
-                email       VARCHAR(255) NOT NULL UNIQUE,
-                phone       VARCHAR(30)  DEFAULT NULL,
-                gender      ENUM('male','female','other') DEFAULT NULL,
-                age         TINYINT UNSIGNED DEFAULT NULL,
-                address     TEXT DEFAULT NULL,
-                password    VARCHAR(255) DEFAULT NULL,
-                created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        ");
+        Schema::create('users', function (Blueprint $table) {
+            $table->id();
+            $table->string('first_name', 100);
+            $table->string('last_name', 100);
+            $table->string('email')->unique();
+            $table->string('phone', 30)->nullable();
+            $table->enum('gender', ['male', 'female', 'other'])->nullable();
+            $table->tinyInteger('age')->unsigned()->nullable();
+            $table->text('address')->nullable();
+            $table->string('password')->nullable();
+            $table->timestamps();
+        });
     }
 
-    public function down()
+    public function down(): void
     {
-        $pdo = \Src\Database::getInstance()->getConnection();
-        $pdo->exec("DROP TABLE IF EXISTS users");
+        Schema::dropIfExists('users');
     }
 }

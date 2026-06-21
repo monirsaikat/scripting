@@ -67,24 +67,22 @@ PHP;
         return <<<PHP
 <?php
 
+use Src\Database\Schema;
+use Src\Database\Blueprint;
+
 class $className
 {
-    public function up()
+    public function up(): void
     {
-        \$pdo = \\Src\\Database::getInstance()->getConnection();
-        \$pdo->exec("
-            CREATE TABLE IF NOT EXISTS $table (
-                id         INT AUTO_INCREMENT PRIMARY KEY,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
-        ");
+        Schema::create('$table', function (Blueprint \$table) {
+            \$table->id();
+            \$table->timestamps();
+        });
     }
 
-    public function down()
+    public function down(): void
     {
-        \$pdo = \\Src\\Database::getInstance()->getConnection();
-        \$pdo->exec("DROP TABLE IF EXISTS $table");
+        Schema::dropIfExists('$table');
     }
 }
 PHP;

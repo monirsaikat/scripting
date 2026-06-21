@@ -46,25 +46,47 @@ class MakeMigrationCommand extends Command
     private function getStub(string $name): string
     {
         $className = $this->studlyCase($name);
+        $table     = $this->guessTableName($name);
 
         return <<<PHP
 <?php
 
+use Src\Database\Schema;
+use Src\Database\Blueprint;
+
 class $className
 {
-    public function up()
+    public function up(): void
     {
-        // Write your migration code here
-        // Example: \$pdo->exec("CREATE TABLE users...");
+        Schema::create('$table', function (Blueprint \$table) {
+            \$table->id();
+            // \$table->string('name');
+            // \$table->string('email')->unique();
+            // \$table->text('body')->nullable();
+            // \$table->boolean('active')->default(true);
+            // \$table->timestamps();
+        });
     }
 
-    public function down()
+    public function down(): void
     {
-        // Write rollback code here
-        // Example: \$pdo->exec("DROP TABLE users");
+        Schema::dropIfExists('$table');
     }
 }
 PHP;
+    }
+
+    private function guessTableName(string $migrationName): string
+    {
+        // create_posts_table  → posts
+        // add_column_to_users → users
+        if (preg_match('/^create_(.+?)_table$/', $migrationName, $m)) {
+            return $m[1];
+        }
+        if (preg_match('/(?:to|from|in)_(.+?)(?:_table)?$/', $migrationName, $m)) {
+            return $m[1];
+        }
+        return 'table_name';
     }
 
     private function studlyCase(string $str): string
